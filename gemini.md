@@ -35,5 +35,5 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Objectif :** Préparer l'espace d'hébergement pour les APKs et l'index des extensions séparément du code source.
 
 ## 🚀 État actuel
-Le dépôt est maintenant prêt à fonctionner de manière autonome. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
-`https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/`
+Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
+`https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`
