@@ -168,21 +168,19 @@ jobs:
           path: ~/apk-artifacts
 
       - name: Set up JDK
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: temurin
 
-      - name: Checkout ${{ github.ref_name }} branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout source branch
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
-          path: ${{ github.ref_name }}
-          fetch-depth: 0
+          path: source
 
       - name: Create repo artifacts
         run: |
-          cd ${{ github.ref_name }}
+          cd source
           python ./.github/scripts/move-built-apks.py
           INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/komikku-app/aniyomi-extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
@@ -190,25 +188,22 @@ jobs:
           python ./.github/scripts/create-repo.py
 
       - name: Checkout repo branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@v4
         with:
           ref: repo
           path: repo
-          fetch-depth: 0
 
       - name: Merge repo
         env:
           DELETE: ${{ needs.prepare.outputs.delete }}
         run: |
           cd repo
-          # Initialize index.json if it doesn't exist to allow standalone repo creation
-          if [ ! -f index.json ]; then
-            echo "[]" > index.json
-          fi
-          python ../${{ github.ref_name }}/.github/scripts/merge-repo.py "$DELETE" '${{ github.ref_name }}/repo'
+          # Initialize index.json if it doesn't exist
+          if [ ! -f index.json ]; then echo "[]" > index.json; fi
+          python ../source/.github/scripts/merge-repo.py "$DELETE" "source/repo"
 
       - name: Deploy repo
-        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
+        uses: EndBug/add-and-commit@v9
         with:
           message: "${{ needs.prepare.outputs.latestCommitMessage }}"
           cwd: "./repo"
