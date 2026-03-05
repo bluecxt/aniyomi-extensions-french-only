@@ -3,8 +3,6 @@
 # 🇫🇷 bluecxt french repo 🇫🇷
 ### Le dépôt d'extensions VF et VOSTFR pour Anikku / Aniyomi
 
-[![Drapeau Français](https://raw.githubusercontent.com/hjnilsson/country-flags/master/png250px/fr.png)](https://github.com/bluecxt/aniyomi-extensions-french-only)
-
 ---
 
 
