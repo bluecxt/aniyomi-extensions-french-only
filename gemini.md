@@ -27,8 +27,8 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Objectif :** Éviter l'erreur `command not found` causée par les retours à la ligne dans le secret Base64.
 - **Action 5.3 (Standardisation) :** Passage de toutes les actions GitHub en version stable `v4`.
 - **Objectif :** Résoudre les erreurs de téléchargement d'artefacts (404/400) rencontrées avec les versions par SHA.
-- **Action 5.4 (Robustesse) :** Initialisation automatique de `index.json` si absent et ajout de logs de débogage (`ls -R`).
-- **Objectif :** Garantir que le premier build sur une branche `repo` vide ne plante pas et que les fichiers sont bien placés.
+- **Action 5.5 (Déploiement Automatisé) :** Migration vers `github-pages-deploy-action` pour la branche `repo`.
+- **Objectif :** Garantir que la branche `repo` est toujours propre et contient un `index.min.json` valide, résolvant ainsi l'erreur "invalid repo url" dans Anikku.
 
 ### 6. Gestion des branches
 - **Action :** Création et initialisation de la branche `repo` (orpheline).
