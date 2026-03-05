@@ -22,6 +22,11 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
    - Création d'un fichier `local.properties` à la racine contenant le chemin vers le SDK Android local (`sdk.dir=/home/moi/Android/Sdk`).
    - **Objectif :** Permettre l'exécution de `./gradlew assembleDebug` avec succès sans erreur de SDK introuvable.
 
-5. **Modification du Workflow CI/CD (`build_push.yml`)** :
-   - Suppression de la condition hardcodée `if: github.repository == 'cuong-tran/aniyomi-extensions'` pour le build et la publication.
-   - **Objectif :** Permettre aux GitHub Actions de s'exécuter sur ton propre fork au lieu d'être bloquées car elles ne sont pas sur le dépôt du créateur original.
+6. **Finalisation de l'autonomie du fork** :
+   - **Correction du Workflow CI/CD (`build_push.yml`)** : Modification pour que le déploiement se fasse sur ce dépôt (`${{ github.repository }}`) et non plus sur celui de l'auteur original.
+   - **Simplification de l'authentification** : Passage au `GITHUB_TOKEN` automatique pour éviter la gestion manuelle de secrets `BOT_PAT`.
+   - **Initialisation de la branche `repo`** : Création locale de la branche `repo` (orpheline) pour accueillir l'index des extensions et les APKs.
+   - **Nettoyage Git** : Commit final de toutes les suppressions pour stabiliser la branche `master`.
+
+## 🚀 État actuel
+Le dépôt est maintenant prêt à fonctionner de manière autonome. Une fois les secrets de signature configurés sur GitHub, le build générera automatiquement l'index compatible avec Anikku à l'adresse configurée dans le README.
