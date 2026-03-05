@@ -126,6 +126,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Checkout repo branch
+        uses: actions/checkout@v4
+        with:
+          ref: repo
+          path: repo
+
       - name: Create repo artifacts
         run: |
           python ./.github/scripts/move-built-apks.py

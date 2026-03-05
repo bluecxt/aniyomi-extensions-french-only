@@ -12,4 +12,5 @@ gen
 generated-src/
 .kotlin
 .history
-gemini.md
+# gemini.md (moved to tracked)
+
