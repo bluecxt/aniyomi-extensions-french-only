@@ -138,8 +138,8 @@ jobs:
           # This script uses output.json to create repo/index.min.json
           python ./.github/scripts/create-repo.py
           
-          # Copy output.json to repo/index.json for compatibility
-          cp output.json repo/index.json
+          # Copy index.min.json to index.json for compatibility (both should be in the same format)
+          cp repo/index.min.json repo/index.json
 
           # Extract signing fingerprint and create mandatory repo.json for Anikku
           SAMPLE_APK=$(find repo/apk -name "*.apk" | head -n 1)
