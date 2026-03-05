@@ -27,6 +27,8 @@ class SouthTV : AnimeHttpSource() {
         Triple("The end of Obesity", "obes.mp4", "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/2024/05/01/2333651011699/SPTEO_US_2024_SA_16x9_1920x1080_NB_2695584_1920x1080.jpg"),
         Triple("Streaming War P1", "streamwar1.mp4", "https://m.media-amazon.com/images/S/pv-target-images/b5a1bd01e3984eec29a70506b160d7060895b7845f40c0e13b44f5a903815496._UR1920,1080_.jpg"),
         Triple("Streaming War P2", "streamwar2.mp4", "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/2022/06/22/2045697603902/SPTSW2_SAlone_16_9_1920x1080_NB_1476556_1920x1080.jpg"),
+        Triple("Post Covid P1", "southpark/s24e3.mp4", "https://m.media-amazon.com/images/S/pv-target-images/c32dc76af0a3da928ce124c1e22d23f203ee5ddf6743186f058344bc9414931f.jpg"),
+        Triple("Post Covid P2", "southpark/s24e4.mp4", "https://i.ytimg.com/vi/M19gImHO754/maxresdefault.jpg"),
         Triple("South Park le Film", "Filmsouthpark.mp4", "https://thumbnails.cbsig.net/CBS_Production_Entertainment_VMS/2021/11/10/1972863555958/SPBLU_SAlone_16_9_1920x1080_1040472_1920x1080.jpg"),
     )
 
@@ -38,8 +40,7 @@ class SouthTV : AnimeHttpSource() {
                 title = "South Park (VF)"
                 url = "south_park_vf"
                 thumbnail_url = "https://image.tmdb.org/t/p/original/2PzoiWFm3WymmOPOkWe5DKv7xD8.jpg"
-                description = "South Park est une série d\'animation américaine pour adultes créée par Trey Parker et Matt Stone. La série est connue pour son humour noir, sa satire et son langage grossier."
-                artist = "Trey Parker, Matt Stone"
+                description = "South Park est une série d\'animation américaine pour adultes. (VF)"
                 status = SAnime.ONGOING
             },
         )
@@ -48,8 +49,17 @@ class SouthTV : AnimeHttpSource() {
                 title = "South Park (VO)"
                 url = "south_park_vo"
                 thumbnail_url = "https://image.tmdb.org/t/p/original/2PzoiWFm3WymmOPOkWe5DKv7xD8.jpg"
-                description = "South Park is an American adult animated sitcom created by Trey Parker and Matt Stone. The series is known for its black humor, satire, and crude language."
-                artist = "Trey Parker, Matt Stone"
+                description = "South Park is an American adult animated sitcom. (VO)"
+                status = SAnime.ONGOING
+            },
+        )
+        // American Dad
+        animeList.add(
+            SAnime.create().apply {
+                title = "American Dad"
+                url = "american_dad"
+                thumbnail_url = "https://static.wikia.nocookie.net/dublagem/images/e/e8/American_Dad%21.png"
+                description = "American Dad! est une série d\'animation américaine."
                 status = SAnime.ONGOING
             },
         )
@@ -94,6 +104,16 @@ class SouthTV : AnimeHttpSource() {
                 }
                 episodeCountSoFar += count
             }
+        } else if (anime.url == "american_dad") {
+            for (i in 1..20) {
+                episodes.add(
+                    SEpisode.create().apply {
+                        name = "Épisode $i"
+                        url = "american_dad#e=$i"
+                        episode_number = i.toFloat()
+                    },
+                )
+            }
         } else { // movie
             episodes.add(
                 SEpisode.create().apply {
@@ -123,9 +143,14 @@ class SouthTV : AnimeHttpSource() {
                 }
             }.build()
             videoList.add(Video(videoUrl, "default", videoUrl, headers = videoHeaders))
+        } else if (episode.url.startsWith("american_dad")) {
+            val episodeNum = episode.url.split("e=")[1]
+            val videoUrl = "$videoUrlHost/americandad/s1e$episodeNum.mp4"
+            val videoHeaders = Headers.Builder().add("User-Agent", userAgent).build()
+            videoList.add(Video(videoUrl, "American Dad E$episodeNum", videoUrl, headers = videoHeaders))
         } else { // movie
-            val movieName = episode.url.substringAfter("movie_")
-            val videoUrl = "$videoUrlHost/films/$movieName"
+            val moviePath = episode.url.substringAfter("movie_")
+            val videoUrl = if (moviePath.contains("/")) "$videoUrlHost/$moviePath" else "$videoUrlHost/films/$moviePath"
             val videoHeaders = Headers.Builder().add("User-Agent", userAgent).build()
             videoList.add(Video(videoUrl, "default", videoUrl, headers = videoHeaders))
         }
