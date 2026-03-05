@@ -1,1 +1,1 @@
-[{"name":"Aniyomi: FrAnime","pkg":"eu.kanade.tachiyomi.animeextension.fr.franime","apk":"aniyomi-fr.franime-v14.23.apk","lang":"fr","code":23,"version":"14.23","nsfw":1,"sources":[{"name":"FRAnime","lang":"fr","id":"3074980924810171824","baseUrl":"https://franime.fr","versionId":1}]}]
+[{"name":"Aniyomi: SouthTV","pkg":"eu.kanade.tachiyomi.animeextension.fr.southtv","apk":"aniyomi-fr.southtv-v14.3.apk","lang":"fr","code":3,"version":"14.3","nsfw":0,"sources":[{"name":"SouthTV","lang":"fr","id":"8214042598473302833","baseUrl":"https://southtv.fr","versionId":1}]}]
