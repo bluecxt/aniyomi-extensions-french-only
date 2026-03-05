@@ -186,29 +186,15 @@ jobs:
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
           java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
           python ./.github/scripts/create-repo.py
-          echo "Generated repo files:"
-          ls -R repo/
+          # Create a dummy index.json if only index.min.json is generated
+          if [ -f repo/index.min.json ] && [ ! -f repo/index.json ]; then
+            cp repo/index.min.json repo/index.json
+          fi
 
-      - name: Checkout repo branch
-        uses: actions/checkout@v4
+      - name: Deploy to repo branch
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          ref: repo
-          path: repo
-
-      - name: Merge repo
-        env:
-          DELETE: ${{ needs.prepare.outputs.delete }}
-        run: |
-          cd repo
-          # Initialize files if they don't exist
-          if [ ! -f index.json ]; then echo "[]" > index.json; fi
-          if [ ! -f index.min.json ]; then echo "[]" > index.min.json; fi
-          python ../source/.github/scripts/merge-repo.py "$DELETE" "source/repo"
-          echo "Final repo branch content:"
-          ls -R .
-
-      - name: Deploy repo
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: "${{ needs.prepare.outputs.latestCommitMessage }}"
-          cwd: "./repo"
+          branch: repo
+          folder: source/repo
+          clean: true
+          commit-message: "Update extension repo: ${{ needs.prepare.outputs.latestCommitMessage }}"
