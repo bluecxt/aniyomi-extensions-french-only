@@ -19,14 +19,14 @@ Cliquez sur le bouton correspondant à votre application pour ajouter automatiqu
 
 | Pour Anikku | Pour Aniyomi |
 |:---:|:---:|
-| [![Install on Anikku](https://img.shields.io/badge/Ajouter%20à%20Anikku-orange?style=for-the-badge&logo=android)](https://intradeus.github.io/http-protocol-redirector/?r=anikku://add-repo?url=https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json) | [![Install on Aniyomi](https://img.shields.io/badge/Ajouter%20à%20Aniyomi-blue?style=for-the-badge&logo=android)](https://intradeus.github.io/http-protocol-redirector/?r=aniyomi://add-repo?url=https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json) |
+| [![Install on Anikku](https://img.shields.io/badge/Ajouter%20à%20Anikku-orange?style=for-the-badge&logo=android)](https://intradeus.github.io/http-protocol-redirector/?r=anikku://add-repo?url=https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json) | [![Install on Aniyomi](https://img.shields.io/badge/Ajouter%20à%20Aniyomi-blue?style=for-the-badge&logo=android)](https://intradeus.github.io/http-protocol-redirector/?r=aniyomi://add-repo?url=https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json) |
 
 ### Méthode 2 : Ajout manuel
 
-Si la méthode ci-dessus ne fonctionne pas, copiez et collez cette URL exacte dans les paramètres de votre application :
+Si la méthode ci-dessus ne fonctionne pas, copiez et collez cette URL (optimisée via CDN) :
 
 ```text
-https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json
+https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json
 ```
 
 ## 🛠️ Extensions disponibles
