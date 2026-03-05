@@ -34,18 +34,19 @@ https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/in
 ## 🛠️ Extensions disponibles
 
 Ce dépôt regroupe et maintient les sources françaises pour regarder vos animes préférés. Voici la liste complète des extensions actuelles :
-- **Anime-Sama**
-- **AnimeVostfr**
-- **AniSama**
-- **EmpireStreaming**
-- **Franime**
-- **FrenchAnime**
-- **Jetanime**
-- **Otakufr**
-- **SouthTV**
-- **VoirCartoon**
-- **Vostfree**
-- **Wiflix**
+
+- **Anime-Sama** : Un catalogue immense, incluant les nouveautés VF et VOSTFR avec plusieurs lecteurs.
+- **AnimeVostfr** : Spécialiste de la VOSTFR de haute qualité.
+- **AniSama** : Une alternative robuste pour de nombreux animes populaires.
+- **EmpireStreaming** : Source généraliste proposant des films et séries en plus des animes.
+- **Franime** : Excellente source française avec une interface propre et rapide.
+- **FrenchAnime** : Une source historique avec un catalogue très varié.
+- **Jetanime** : L'un des sites les plus anciens et complets du web français.
+- **Otakufr** : Propose des versions de haute qualité pour les animes saisonniers.
+- **SouthTV** : Le spécialiste pour South Park, American Dad et les Griffins en streaming rapide.
+- **VoirCartoon** : Dédié aux dessins animés, cartoons et films d'animation.
+- **Vostfree** : Une référence incontournable pour la VOSTFR et la VF.
+- **Wiflix** : Source généraliste avec une section anime très bien fournie.
 
 Toutes les extensions se trouvent dans le dossier `src/fr/`. Tous les outils d'extraction vidéo (nécessaires si vous voulez ajouter de nouveaux sites) ont été conservés dans le dossier `lib/`.
 
