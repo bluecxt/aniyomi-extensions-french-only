@@ -186,6 +186,8 @@ jobs:
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
           java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
           python ./.github/scripts/create-repo.py
+          echo "Generated repo files:"
+          ls -R repo/
 
       - name: Checkout repo branch
         uses: actions/checkout@v4
@@ -198,9 +200,12 @@ jobs:
           DELETE: ${{ needs.prepare.outputs.delete }}
         run: |
           cd repo
-          # Initialize index.json if it doesn't exist
+          # Initialize files if they don't exist
           if [ ! -f index.json ]; then echo "[]" > index.json; fi
+          if [ ! -f index.min.json ]; then echo "[]" > index.min.json; fi
           python ../source/.github/scripts/merge-repo.py "$DELETE" "source/repo"
+          echo "Final repo branch content:"
+          ls -R .
 
       - name: Deploy repo
         uses: EndBug/add-and-commit@v9

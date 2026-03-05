@@ -21,7 +21,7 @@ Pour profiter de ces extensions françaises, vous devez ajouter le lien de l'ind
 4. Copiez et collez l'URL suivante :
 
 ```text
-https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json
+https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/
 ```
 
 ## 🛠️ Extensions disponibles
