@@ -146,16 +146,15 @@ jobs:
           if [ -n "$SAMPLE_APK" ]; then
             FINGERPRINT=$(keytool -printcert -jarfile "$SAMPLE_APK" | grep "SHA256:" | head -n 1 | awk -F': ' '{print $2}' | sed 's/://g' | tr '[:upper:]' '[:lower:]')
             echo "{\"meta\":{\"name\":\"bluecxt french repo\",\"shortName\":\"BCXT-FR\",\"website\":\"https://github.com/bluecxt/aniyomi-extensions-french-only\",\"signingKeyFingerprint\":\"$FINGERPRINT\"}}" > repo/repo.json
-            echo "Successfully generated repo.json with fingerprint: $FINGERPRINT"
+            echo "Successfully generated repo.json with name: bluecxt french repo"
           else
             echo "Error: No APK found to extract fingerprint!"
             exit 1
           fi
 
-          # Copy repository icon
-          if [ -f icon.png ]; then
-            cp icon.png repo/icon.png
-          fi
+          # Download and set repository icon/logo (GitHub runner has better network access)
+          curl -L "https://flagcdn.com/w640/fr.png" -o repo/icon.png
+          cp repo/icon.png repo/logo.png
 
       - name: Deploy to repo branch
         uses: JamesIves/github-pages-deploy-action@v4
