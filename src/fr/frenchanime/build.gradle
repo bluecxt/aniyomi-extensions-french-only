@@ -3,7 +3,7 @@ ext {
     extClass = '.FrenchAnime'
     themePkg = 'datalifeengine'
     baseUrl = 'https://french-anime.com'
-    overrideVersionCode = 26
+    overrideVersionCode = 27
 }
 
 apply from: "$rootDir/common.gradle"
@@ -21,4 +21,7 @@ dependencies {
     implementation(project(':lib:streamhubextractor'))
     implementation(project(':lib:vidmolyextractor'))
     implementation(project(':lib:voeextractor'))
+    implementation(project(':lib:filemoonextractor'))
+    implementation(project(':lib:luluextractor'))
+    implementation(project(':lib:streamwishextractor'))
 }

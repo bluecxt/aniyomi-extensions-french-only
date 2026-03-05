@@ -3,11 +3,14 @@ package eu.kanade.tachiyomi.animeextension.fr.frenchanime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.lib.doodextractor.DoodExtractor
+import eu.kanade.tachiyomi.lib.filemoonextractor.FilemoonExtractor
+import eu.kanade.tachiyomi.lib.luluextractor.LuluExtractor
 import eu.kanade.tachiyomi.lib.okruextractor.OkruExtractor
 import eu.kanade.tachiyomi.lib.sibnetextractor.SibnetExtractor
 import eu.kanade.tachiyomi.lib.streamhidevidextractor.StreamHideVidExtractor
 import eu.kanade.tachiyomi.lib.streamhubextractor.StreamHubExtractor
 import eu.kanade.tachiyomi.lib.streamvidextractor.StreamVidExtractor
+import eu.kanade.tachiyomi.lib.streamwishextractor.StreamWishExtractor
 import eu.kanade.tachiyomi.lib.upstreamextractor.UpstreamExtractor
 import eu.kanade.tachiyomi.lib.uqloadextractor.UqloadExtractor
 import eu.kanade.tachiyomi.lib.vidmolyextractor.VidMolyExtractor
@@ -101,11 +104,20 @@ class FrenchAnime :
     private val streamHubExtractor by lazy { StreamHubExtractor(client) }
     private val vidmolyExtractor by lazy { VidMolyExtractor(client) }
     private val voeExtractor by lazy { VoeExtractor(client, headers) }
+    private val filemoonExtractor by lazy { FilemoonExtractor(client) }
+    private val luluExtractor by lazy { LuluExtractor(client, headers) }
+    private val streamWishExtractor by lazy { StreamWishExtractor(client, headers) }
 
     override suspend fun getVideoList(episode: SEpisode): List<Video> {
         val list = episode.url.split(",").filter { it.isNotBlank() }.parallelCatchingFlatMap {
             with(it) {
                 when {
+                    contains("filemoon") -> filemoonExtractor.videosFromUrl(this)
+
+                    contains("lulu") -> luluExtractor.videosFromUrl(this, "")
+
+                    contains("wish") -> streamWishExtractor.videosFromUrl(this)
+
                     contains("dood") ||
                         contains("d0000d") -> doodExtractor.videosFromUrl(this)
 
@@ -145,3 +157,4 @@ class FrenchAnime :
 
     override fun videoUrlParse(document: Document): String = throw UnsupportedOperationException()
 }
+// Force build update for FrenchAnime
