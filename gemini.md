@@ -4,29 +4,36 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 
 ## Modifications effectuées
 
-1. **Nettoyage des sources (src/)** :
-   - Suppression de tous les dossiers de langues non-francophones (`src/all`, `src/en`, `src/es`, etc.) pour ne conserver que le dossier `src/fr/`.
-   - **Objectif :** Réduire la taille du projet et se concentrer uniquement sur les extensions VF/VOSTFR.
+### 1. Nettoyage des sources (src/)
+- **Action :** Suppression de tous les dossiers de langues non-francophones (`src/all`, `src/en`, `src/es`, etc.).
+- **Objectif :** Réduire la taille du projet, accélérer les temps de build et se concentrer uniquement sur les extensions VF/VOSTFR.
 
-2. **Tentative de nettoyage de `lib-multisrc/` (Annulée/Restaurée)** :
-   - *Action initiale :* Suppression du dossier `lib-multisrc/` et de son inclusion dans `settings.gradle.kts`.
-   - *Annulation :* Restauration via `git checkout` car 6 extensions françaises (FrenchAnime, Wiflix, Jetanime, etc.) dépendent des thèmes partagés dans ce dossier (ex: `datalifeengine`, `dooplay`).
+### 2. Gestion de `lib-multisrc/`
+- **Action :** Restauration du dossier `lib-multisrc/` (précédemment supprimé par erreur).
+- **Objectif :** Garantir le fonctionnement de 6 extensions françaises (FrenchAnime, Wiflix, Jetanime, etc.) qui dépendent des thèmes partagés (ex: `datalifeengine`, `dooplay`).
 
-3. **Mise à jour du `README.md`** :
-   - Réécriture complète en français.
-   - Ajout d'un avertissement précisant que les extensions sont testées en priorité sur **Anikku** (et pas forcément garanties sur Aniyomi).
-   - Ajout des instructions d'installation avec le lien vers `index.min.json`.
-   - Ajout de la liste complète des 13 extensions françaises restantes.
+### 3. Mise à jour du `README.md`
+- **Action :** Réécriture complète en français et mise à jour de l'URL du dépôt d'extensions.
+- **Objectif :** Fournir des instructions claires aux utilisateurs et proposer l'URL du dossier (`/repo/`) plus compatible avec Anikku/Aniyomi que le lien direct vers le JSON.
 
-4. **Correction de la compilation locale** :
-   - Création d'un fichier `local.properties` à la racine contenant le chemin vers le SDK Android local (`sdk.dir=/home/moi/Android/Sdk`).
-   - **Objectif :** Permettre l'exécution de `./gradlew assembleDebug` avec succès sans erreur de SDK introuvable.
+### 4. Correction de la compilation locale
+- **Action :** Création d'un fichier `local.properties` (SDK Android local).
+- **Objectif :** Permettre l'exécution de `./gradlew assembleDebug` en local sans erreur de chemin SDK.
 
-6. **Finalisation de l'autonomie du fork** :
-   - **Correction du Workflow CI/CD (`build_push.yml`)** : Modification pour que le déploiement se fasse sur ce dépôt (`${{ github.repository }}`) et non plus sur celui de l'auteur original.
-   - **Simplification de l'authentification** : Passage au `GITHUB_TOKEN` automatique pour éviter la gestion manuelle de secrets `BOT_PAT`.
-   - **Initialisation de la branche `repo`** : Création locale de la branche `repo` (orpheline) pour accueillir l'index des extensions et les APKs.
-   - **Nettoyage Git** : Commit final de toutes les suppressions pour stabiliser la branche `master`.
+### 5. Refonte du Workflow CI/CD (`build_push.yml`)
+- **Action 5.1 (Autonomie) :** Suppression des références à `cuong-tran` pour utiliser `${{ github.repository }}`.
+- **Objectif :** Permettre aux GitHub Actions de publier les extensions sur ton propre fork.
+- **Action 5.2 (Sécurité) :** Passage par une variable d'environnement pour `SIGNING_KEY`.
+- **Objectif :** Éviter l'erreur `command not found` causée par les retours à la ligne dans le secret Base64.
+- **Action 5.3 (Standardisation) :** Passage de toutes les actions GitHub en version stable `v4`.
+- **Objectif :** Résoudre les erreurs de téléchargement d'artefacts (404/400) rencontrées avec les versions par SHA.
+- **Action 5.4 (Robustesse) :** Initialisation automatique de `index.json` si absent et ajout de logs de débogage (`ls -R`).
+- **Objectif :** Garantir que le premier build sur une branche `repo` vide ne plante pas et que les fichiers sont bien placés.
+
+### 6. Gestion des branches
+- **Action :** Création et initialisation de la branche `repo` (orpheline).
+- **Objectif :** Préparer l'espace d'hébergement pour les APKs et l'index des extensions séparément du code source.
 
 ## 🚀 État actuel
-Le dépôt est maintenant prêt à fonctionner de manière autonome. Une fois les secrets de signature configurés sur GitHub, le build générera automatiquement l'index compatible avec Anikku à l'adresse configurée dans le README.
+Le dépôt est maintenant prêt à fonctionner de manière autonome. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
+`https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/`
