@@ -1,9 +1,0 @@
-ext {
-    extName = 'WcoTv'
-    extClass = '.WcoTv'
-    themePkg = 'wcotheme'
-    baseUrl = 'https://www.wco.tv'
-    overrideVersionCode = 4
-}
-
-apply from: "$rootDir/common.gradle"
