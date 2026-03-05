@@ -156,12 +156,13 @@ jobs:
   publish:
     name: Publish extension repo
     needs: [prepare, build]
-    
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
       - name: Download APK artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372fd98db60 # v4.3.6
         with:
           path: ~/apk-artifacts
 
@@ -177,7 +178,6 @@ jobs:
           ref: ${{ github.ref_name }}
           path: ${{ github.ref_name }}
           fetch-depth: 0
-          persist-credentials: false
 
       - name: Create repo artifacts
         run: |
@@ -191,18 +191,19 @@ jobs:
       - name: Checkout repo branch
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          repository: cuong-tran/aniyomi-repo
-          token: ${{ secrets.BOT_PAT }}
           ref: repo
           path: repo
           fetch-depth: 0
-          persist-credentials: true
 
       - name: Merge repo
         env:
           DELETE: ${{ needs.prepare.outputs.delete }}
         run: |
           cd repo
+          # Initialize index.json if it doesn't exist to allow standalone repo creation
+          if [ ! -f index.json ]; then
+            echo "[]" > index.json
+          fi
           python ../${{ github.ref_name }}/.github/scripts/merge-repo.py "$DELETE" '${{ github.ref_name }}/repo'
 
       - name: Deploy repo
@@ -210,5 +211,3 @@ jobs:
         with:
           message: "${{ needs.prepare.outputs.latestCommitMessage }}"
           cwd: "./repo"
-          # committer_name: github-actions[bot]
-          # committer_email: github-actions[bot]@users.noreply.github.com
