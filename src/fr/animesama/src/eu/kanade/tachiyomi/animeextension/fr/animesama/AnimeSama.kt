@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.animeextension.fr.animesama
 
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
 import app.cash.quickjs.QuickJs
@@ -32,7 +33,8 @@ class AnimeSama :
     override val name = "Anime-Sama"
 
     // Domain info at: https://anime-sama.pw
-    override val baseUrl = "https://anime-sama.si"
+    override val baseUrl: String
+        get() = preferences.getString(PREF_URL_KEY, PREF_URL_DEFAULT)!!
 
     override val lang = "fr"
 
@@ -226,6 +228,23 @@ class AnimeSama :
     }
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
+        EditTextPreference(screen.context).apply {
+            key = PREF_URL_KEY
+            title = PREF_URL_TITLE
+            summary = PREF_URL_SUMMARY
+            setDefaultValue(PREF_URL_DEFAULT)
+            dialogTitle = PREF_URL_TITLE
+            setOnPreferenceChangeListener { _, newValue ->
+                try {
+                    val res = preferences.edit().putString(PREF_URL_KEY, newValue as String).commit()
+                    res
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    false
+                }
+            }
+        }.also(screen::addPreference)
+
         ListPreference(screen.context).apply {
             key = PREF_QUALITY_KEY
             title = "Preferred quality"
@@ -256,6 +275,11 @@ class AnimeSama :
 
     companion object {
         const val PREFIX_SEARCH = "id:"
+
+        private const val PREF_URL_KEY = "base_url_pref"
+        private const val PREF_URL_TITLE = "URL de base"
+        private const val PREF_URL_DEFAULT = "https://anime-sama.tv"
+        private const val PREF_URL_SUMMARY = "Pour changer le domaine de l'extension. Voir https://anime-sama.pw"
 
         private val voicesMap = mapOf(
             "Préférer VOSTFR" to "vostfr",
