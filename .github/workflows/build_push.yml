@@ -173,20 +173,17 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Checkout source branch
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: source
 
       - name: Create repo artifacts
         run: |
-          cd source
           python ./.github/scripts/move-built-apks.py
           INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/komikku-app/aniyomi-extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
           java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
           python ./.github/scripts/create-repo.py
-          # Create a dummy index.json if only index.min.json is generated
+          # Ensure index.json exists for compatibility
           if [ -f repo/index.min.json ] && [ ! -f repo/index.json ]; then
             cp repo/index.min.json repo/index.json
           fi
@@ -195,6 +192,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: repo
-          folder: source/repo
+          folder: repo
           clean: true
           commit-message: "Update extension repo: ${{ needs.prepare.outputs.latestCommitMessage }}"
