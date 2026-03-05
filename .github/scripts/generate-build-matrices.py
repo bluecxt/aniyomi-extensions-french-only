@@ -39,7 +39,7 @@ def get_module_list(ref: str) -> tuple[list[str], list[str]]:
     modules = set()
     libs = set()
     deleted = set()
-    core_files_changed = True # Forced to True to initialize the repo with all extensions
+    core_files_changed = False
 
     for file in map(lambda x: Path(x).as_posix(), changed_files):
         if CORE_FILES_REGEX.search(file):
