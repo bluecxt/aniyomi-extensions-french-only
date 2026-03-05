@@ -131,13 +131,15 @@ jobs:
           python ./.github/scripts/move-built-apks.py
           INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/komikku-app/aniyomi-extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
-          java -jar ./Inspector.jar "repo/apk" "repo/index.json" "tmp"
+          
+          # Inspector needs to generate output.json for create-repo.py
+          java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
+          
+          # This script uses output.json to create repo/index.min.json
           python ./.github/scripts/create-repo.py
           
-          # Force index.json if only index.min.json exists
-          if [ -f repo/index.min.json ] && [ ! -f repo/index.json ]; then
-            cp repo/index.min.json repo/index.json
-          fi
+          # Copy output.json to repo/index.json for compatibility
+          cp output.json repo/index.json
 
           # Extract signing fingerprint and create mandatory repo.json for Anikku
           SAMPLE_APK=$(find repo/apk -name "*.apk" | head -n 1)
