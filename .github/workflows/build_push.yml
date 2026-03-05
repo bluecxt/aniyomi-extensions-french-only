@@ -145,11 +145,16 @@ jobs:
           SAMPLE_APK=$(find repo/apk -name "*.apk" | head -n 1)
           if [ -n "$SAMPLE_APK" ]; then
             FINGERPRINT=$(keytool -printcert -jarfile "$SAMPLE_APK" | grep "SHA256:" | head -n 1 | awk -F': ' '{print $2}' | sed 's/://g' | tr '[:upper:]' '[:lower:]')
-            echo "{\"meta\":{\"name\":\"🇫🇷 Extensions Francophones\",\"shortName\":\"Aniyomi-FR\",\"website\":\"https://github.com/bluecxt/aniyomi-extensions-french-only\",\"signingKeyFingerprint\":\"$FINGERPRINT\"}}" > repo/repo.json
+            echo "{\"meta\":{\"name\":\"bluecxt french repo\",\"shortName\":\"BCXT-FR\",\"website\":\"https://github.com/bluecxt/aniyomi-extensions-french-only\",\"signingKeyFingerprint\":\"$FINGERPRINT\"}}" > repo/repo.json
             echo "Successfully generated repo.json with fingerprint: $FINGERPRINT"
           else
             echo "Error: No APK found to extract fingerprint!"
             exit 1
+          fi
+
+          # Copy repository icon
+          if [ -f icon.png ]; then
+            cp icon.png repo/icon.png
           fi
 
       - name: Deploy to repo branch
