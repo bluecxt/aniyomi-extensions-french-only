@@ -41,6 +41,7 @@ with REMOTE_REPO.joinpath("index.json").open("w", encoding="utf-8") as index_fil
 for item in index:
     for source in item["sources"]:
         source.pop("versionId", None)
+        source.pop("baseUrl", None) # Some repos don't have baseUrl in the index either
 
 with REMOTE_REPO.joinpath("index.min.json").open("w", encoding="utf-8") as index_min_file:
     json.dump(index, index_min_file, ensure_ascii=False, separators=(",", ":"))
