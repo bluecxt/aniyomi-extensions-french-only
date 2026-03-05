@@ -42,6 +42,7 @@ Ce dépôt regroupe et maintient les sources françaises pour regarder vos anime
 - **FrenchAnime**
 - **Jetanime**
 - **Otakufr**
+- **SouthTV**
 - **VoirCartoon**
 - **Vostfree**
 - **Wiflix**
