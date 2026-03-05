@@ -175,18 +175,30 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+- name: Create repo artifacts
+  run: |
+    python ./.github/scripts/move-built-apks.py
+    INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/komikku-app/aniyomi-extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
+    curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
+    java -jar ./Inspector.jar "repo/apk" "repo/index.json" "tmp"
+    python ./.github/scripts/create-repo.py
 
-      - name: Create repo artifacts
-        run: |
-          python ./.github/scripts/move-built-apks.py
-          INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/komikku-app/aniyomi-extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
-          curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
-          java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
-          python ./.github/scripts/create-repo.py
-          # Ensure index.json exists for compatibility
-          if [ -f repo/index.min.json ] && [ ! -f repo/index.json ]; then
-            cp repo/index.min.json repo/index.json
-          fi
+    # Force index.json if only index.min.json exists
+    if [ -f repo/index.min.json ] && [ ! -f repo/index.json ]; then
+      cp repo/index.min.json repo/index.json
+    fi
+
+    # Extract signing fingerprint and create mandatory repo.json for Anikku
+    SAMPLE_APK=$(find repo/apk -name "*.apk" | head -n 1)
+    if [ -n "$SAMPLE_APK" ]; then
+      FINGERPRINT=$(keytool -printcert -jarfile "$SAMPLE_APK" | grep "SHA256:" | head -n 1 | awk -F': ' '{print $2}' | sed 's/://g' | tr '[:upper:]' '[:lower:]')
+      echo "{\"meta\":{\"name\":\"🇫🇷 Extensions Francophones\",\"shortName\":\"Aniyomi-FR\",\"website\":\"https://github.com/bluecxt/aniyomi-extensions-french-only\",\"signingKeyFingerprint\":\"$FINGERPRINT\"}}" > repo/repo.json
+      echo "Successfully generated repo.json with fingerprint: $FINGERPRINT"
+    else
+      echo "Error: No APK found to extract fingerprint!"
+      exit 1
+    fi
+
 
       - name: Deploy to repo branch
         uses: JamesIves/github-pages-deploy-action@v4
