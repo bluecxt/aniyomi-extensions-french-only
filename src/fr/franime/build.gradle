@@ -1,7 +1,7 @@
 ext {
     extName = 'FrAnime'
     extClass = '.FrAnime'
-    extVersionCode = 22
+    extVersionCode = 23
     isNsfw = true
 }
 apply from: "$rootDir/common.gradle"
@@ -12,4 +12,5 @@ dependencies {
     implementation(project(':lib:sendvidextractor'))
     implementation(project(':lib:sibnetextractor'))
     implementation(project(':lib:vidmolyextractor'))
+    implementation(project(':lib:filemoonextractor'))
 }
