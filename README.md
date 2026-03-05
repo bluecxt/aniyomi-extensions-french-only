@@ -11,14 +11,19 @@ Toutes les extensions présentes dans ce dépôt sont **testées et optimisées 
 
 ---
 
-## 📌 Comment ajouter ce dépôt à votre application
+## 📌 Comment ajouter ce dépôt
 
-Pour profiter de ces extensions françaises, vous devez ajouter le lien de l'index du dépôt directement dans votre application Anikku (ou Aniyomi).
+### Méthode 1 : Installation en un clic (Recommandé)
 
-1. Ouvrez **Anikku**.
-2. Allez dans l'onglet **Parcourir** > **Extensions**.
-3. Cherchez l'option pour ajouter un **Dépôt d'extensions** (souvent via un bouton d'ajout ou dans les paramètres de la page).
-4. Copiez et collez l'URL suivante :
+Cliquez sur le bouton correspondant à votre application pour ajouter automatiquement le dépôt :
+
+| Pour Anikku | Pour Aniyomi |
+|:---:|:---:|
+| [![Install on Anikku](https://img.shields.io/badge/Ajouter%20à%20Anikku-orange?style=for-the-badge&logo=android)](https://intradeus.github.io/http-protocol-redirector/?r=anikku://add-repo?url=https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json) | [![Install on Aniyomi](https://img.shields.io/badge/Ajouter%20à%20Aniyomi-blue?style=for-the-badge&logo=android)](https://intradeus.github.io/http-protocol-redirector/?r=aniyomi://add-repo?url=https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json) |
+
+### Méthode 2 : Ajout manuel
+
+Si la méthode ci-dessus ne fonctionne pas, copiez et collez cette URL exacte dans les paramètres de votre application :
 
 ```text
 https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json
