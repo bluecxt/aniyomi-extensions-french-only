@@ -18,7 +18,7 @@ class SouthTV : AnimeHttpSource() {
     override val lang = "fr"
     override val supportsLatest = false
 
-    private val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+    private val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
 
     private val episodesPerSeason = listOf(13, 18, 17, 17, 14, 17, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 10, 10, 10, 10, 10, 10, 10, 4, 6, 6, 5, 5)
     private val movies = listOf(
@@ -67,30 +67,26 @@ class SouthTV : AnimeHttpSource() {
         return animeList
     }
 
-    override suspend fun getPopularAnime(page: Int): AnimesPage {
-        return AnimesPage(getAnimeList(), false)
-    }
+    override suspend fun getPopularAnime(page: Int): AnimesPage = AnimesPage(getAnimeList(), false)
 
     override suspend fun getSearchAnime(page: Int, query: String, filters: AnimeFilterList): AnimesPage {
         val filtered = getAnimeList().filter { it.title.contains(query, ignoreCase = true) }
         return AnimesPage(filtered, false)
     }
 
-    override suspend fun getAnimeDetails(anime: SAnime): SAnime {
-        return anime
-    }
+    override suspend fun getAnimeDetails(anime: SAnime): SAnime = anime
 
     override suspend fun getEpisodeList(anime: SAnime): List<SEpisode> {
         val episodes = mutableListOf<SEpisode>()
-        if (anime.url.startsWith("southpark")) {
-            val lang = anime.url.split('_')[1]
+        if (anime.url.startsWith("south_park")) {
+            val lang = anime.url.split('_')[2]
             var episodeCountSoFar = 0
             episodesPerSeason.forEachIndexed { seasonIndex, count ->
                 for (i in 1..count) {
                     episodes.add(
                         SEpisode.create().apply {
                             name = "Saison ${seasonIndex + 1} Episode $i"
-                            url = "southpark#lang=$lang&s=${seasonIndex + 1}&e=$i"
+                            url = "south_park#lang=$lang&s=${seasonIndex + 1}&e=$i"
                             episode_number = (episodeCountSoFar + i).toFloat()
                             scanlator = "S${seasonIndex + 1}"
                         },
@@ -112,7 +108,7 @@ class SouthTV : AnimeHttpSource() {
 
     override suspend fun getVideoList(episode: SEpisode): List<Video> {
         val videoList = mutableListOf<Video>()
-        if (episode.url.startsWith("southpark")) {
+        if (episode.url.startsWith("south_park")) {
             val parts = episode.url.split("#")[1].split("&")
             val lang = parts.find { it.startsWith("lang=") }!!.substring(5)
             val season = parts.find { it.startsWith("s=") }!!.substring(2)
@@ -121,7 +117,7 @@ class SouthTV : AnimeHttpSource() {
             val videoUrl = "${videoUrlBase}s${season}e$episodeNum.mp4"
 
             val videoHeaders = Headers.Builder().apply {
-                add("User-Agent", USER_AGENT)
+                add("User-Agent", userAgent)
                 if (lang == "vf") {
                     add("Referer", "$baseUrl/")
                 }
@@ -130,7 +126,7 @@ class SouthTV : AnimeHttpSource() {
         } else { // movie
             val movieName = episode.url.substringAfter("movie_")
             val videoUrl = "$videoUrlHost/films/$movieName"
-            val videoHeaders = Headers.Builder().add("User-Agent", USER_AGENT).build()
+            val videoHeaders = Headers.Builder().add("User-Agent", userAgent).build()
             videoList.add(Video(videoUrl, "default", videoUrl, headers = videoHeaders))
         }
         return videoList
