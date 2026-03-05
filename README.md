@@ -42,9 +42,7 @@ Ce dépôt regroupe et maintient les sources françaises pour regarder vos anime
 - **EmpireStreaming**
 - **Franime**
 - **FrenchAnime**
-- **HDS**
 - **Jetanime**
-- **MyKdrama**
 - **Otakufr**
 - **VoirCartoon**
 - **Vostfree**

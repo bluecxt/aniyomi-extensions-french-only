@@ -34,6 +34,10 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action :** Création et initialisation de la branche `repo` (orpheline).
 - **Objectif :** Préparer l'espace d'hébergement pour les APKs et l'index des extensions séparément du code source.
 
+### 7. Nettoyage sélectif des extensions françaises
+- **Action :** Suppression des extensions `hds` et `mykdrama`.
+- **Objectif :** Retirer les sources non souhaitées ou obsolètes du dépôt.
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`
