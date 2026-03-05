@@ -18,7 +18,7 @@ class SouthTV : AnimeHttpSource() {
     override val lang = "fr"
     override val supportsLatest = false
 
-    private val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+    private val userAgent = " Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
 
     private val episodesPerSeason = listOf(13, 18, 17, 17, 14, 17, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 10, 10, 10, 10, 10, 10, 10, 4, 6, 6, 5, 5)
     private val movies = listOf(
