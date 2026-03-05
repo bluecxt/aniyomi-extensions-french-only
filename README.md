@@ -1,8 +1,12 @@
 <div align="center">
 
-# 🇫🇷 Extensions Francophones pour Anikku / Aniyomi
+# 🇫🇷 Extensions Francophones 🇫🇷
+### Le dépôt d'extensions VF et VOSTFR pour Anikku / Aniyomi
 
-Ce dépôt est un fork dédié **exclusivement** à la création, la maintenance et la mise à jour des extensions francophones (VF / VOSTFR) pour les applications de streaming d'animes.
+[![Drapeau Français](https://raw.githubusercontent.com/hjnilsson/country-flags/master/png250px/fr.png)](https://github.com/bluecxt/aniyomi-extensions-french-only)
+
+---
+
 
 **⚠️ Note Importante :**  
 Toutes les extensions présentes dans ce dépôt sont **testées et optimisées en priorité pour l'application [Anikku](https://github.com/komikku-app/anikku)**. Bien qu'elles soient techniquement compatibles avec [Aniyomi](https://github.com/aniyomiorg/aniyomi), leur fonctionnement optimal et sans bug n'y est pas systématiquement garanti.
