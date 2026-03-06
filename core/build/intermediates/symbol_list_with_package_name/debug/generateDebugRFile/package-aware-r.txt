@@ -1,2 +1,0 @@
-keiyoushi.core
-mipmap ic_launcher
