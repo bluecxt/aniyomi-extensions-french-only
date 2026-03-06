@@ -1,13 +1,12 @@
 ext {
     extName = 'French-Manga'
     extClass = '.FrenchManga'
-    extVersionCode = 1
+    extVersionCode = 2
 }
 
 apply from: "$rootDir/common.gradle"
 
 dependencies {
-    implementation(project(':lib:luluextractor'))
     implementation(project(':lib:doodextractor'))
     implementation(project(':lib:voeextractor'))
     implementation(project(':lib:sibnetextractor'))
