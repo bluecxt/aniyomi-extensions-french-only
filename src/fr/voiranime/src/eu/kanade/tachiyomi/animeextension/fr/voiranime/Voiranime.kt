@@ -110,34 +110,48 @@ class Voiranime :
 
     override fun videoListParse(response: Response): List<Video> {
         val document = response.asJsoup()
+        val videos = mutableListOf<Video>()
+
+        // Default iframe
+        document.select("div.player-embed iframe").forEach {
+            val src = it.attr("src")
+            if (src.isNotEmpty()) {
+                videos.addAll(extractVideos(src))
+            }
+        }
 
         val players = document.select("select#player-option option, div.player-embed option, select.player-option option")
 
-        return players.parallelCatchingFlatMapBlocking {
-            val base64 = it.attr("value")
-            if (base64.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
+        videos.addAll(
+            players.parallelCatchingFlatMapBlocking {
+                val base64 = it.attr("value")
+                if (base64.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 
-            val decoded = try {
-                java.util.Base64.getDecoder().decode(base64).toString(Charsets.UTF_8)
-            } catch (e: Exception) {
-                ""
-            }
+                val decoded = try {
+                    android.util.Base64.decode(base64, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
+                } catch (e: Exception) {
+                    ""
+                }
 
-            val iframeSrc = Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1) ?: ""
-            if (iframeSrc.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
+                val iframeSrc = Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1) ?: ""
+                if (iframeSrc.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 
-            when {
-                iframeSrc.contains("vidmoly") -> vidMolyExtractor.videosFromUrl(iframeSrc)
-                iframeSrc.contains("sibnet") -> sibnetExtractor.videosFromUrl(iframeSrc)
-                iframeSrc.contains("sendvid") -> sendvidExtractor.videosFromUrl(iframeSrc)
-                iframeSrc.contains("dood") -> doodExtractor.videosFromUrl(iframeSrc)
-                iframeSrc.contains("filemoon") -> filemoonExtractor.videosFromUrl(iframeSrc)
-                iframeSrc.contains("voe") -> voeExtractor.videosFromUrl(iframeSrc)
-                else -> emptyList()
-            }
-        }
+                extractVideos(iframeSrc)
+            },
+        )
+
+        return videos.distinctBy { it.url }
     }
 
+    private fun extractVideos(iframeSrc: String): List<Video> = when {
+        iframeSrc.contains("vidmoly") -> vidMolyExtractor.videosFromUrl(iframeSrc)
+        iframeSrc.contains("sibnet") -> sibnetExtractor.videosFromUrl(iframeSrc)
+        iframeSrc.contains("sendvid") -> sendvidExtractor.videosFromUrl(iframeSrc)
+        iframeSrc.contains("dood") -> doodExtractor.videosFromUrl(iframeSrc)
+        iframeSrc.contains("filemoon") -> filemoonExtractor.videosFromUrl(iframeSrc)
+        iframeSrc.contains("voe") -> voeExtractor.videosFromUrl(iframeSrc)
+        else -> emptyList()
+    }
     override fun videoListSelector() = throw UnsupportedOperationException()
     override fun videoFromElement(element: Element) = throw UnsupportedOperationException()
     override fun videoUrlParse(document: Document) = throw UnsupportedOperationException()

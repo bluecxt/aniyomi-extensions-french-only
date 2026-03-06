@@ -36,6 +36,12 @@ class Animoflix :
 
     override val versionId = 2
 
+    override val client = network.cloudflareClient
+
+    override fun headersBuilder() = super.headersBuilder()
+        .add("Referer", baseUrl)
+        .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
     private val preferences by getPreferencesLazy()
 
     // ============================== Popular ===============================
@@ -47,7 +53,9 @@ class Animoflix :
         val link = element.selectFirst("a")!!
         setUrlWithoutDomain(link.attr("href"))
         title = element.selectFirst("h2.card-title-pro")?.text() ?: ""
-        thumbnail_url = element.selectFirst("img.card-image-pro")?.absUrl("src")
+        thumbnail_url = element.selectFirst("img.card-image-pro")?.attr("src")?.let {
+            if (it.startsWith("/")) baseUrl + it else it
+        }
     }
 
     override fun popularAnimeNextPageSelector(): String? = null
