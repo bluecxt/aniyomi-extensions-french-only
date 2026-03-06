@@ -42,6 +42,7 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 | **French-Manga** | ✅ Opérationnelle | Source DLE avec API AJAX. |
 | **Stream-VF** | ✅ Opérationnelle | Source avec Sibnet (principalement). |
 | **VoirAnime** | ✅ Opérationnelle | Nouvelle source DramaStream. |
+| **Vostfree** | ✅ Opérationnelle | Source historique (VF/VOSTFR). |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
 | **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |
 
@@ -56,6 +57,7 @@ Ce dépôt regroupe et maintient les meilleures sources françaises :
 - **French-Manga** : Catalogue varié et mise à jour rapide.
 - **Stream-VF** : Spécialisé VF avec de bons lecteurs.
 - **VoirAnime** : Source riche en VF/VOSTFR.
+- **Vostfree** : Une référence incontournable (VF et VOSTFR).
 - **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
 - **WaveAnime** : Alternative rapide et efficace.
 

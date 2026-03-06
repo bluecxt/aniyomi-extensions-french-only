@@ -1,0 +1,16 @@
+ext {
+    extName = 'Vostfree'
+    extClass = '.Vostfree'
+    extVersionCode = 1
+}
+
+apply from: "$rootDir/common.gradle"
+
+dependencies {
+    implementation(project(':lib:sibnetextractor'))
+    implementation(project(':lib:doodextractor'))
+    implementation(project(':lib:voeextractor'))
+    implementation(project(':lib:vidmolyextractor'))
+    implementation(project(':lib:uqloadextractor'))
+    implementation(project(':lib:luluextractor'))
+}
