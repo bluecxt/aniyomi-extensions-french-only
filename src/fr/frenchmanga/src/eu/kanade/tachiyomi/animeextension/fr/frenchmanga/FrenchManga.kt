@@ -10,7 +10,6 @@ import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.ParsedAnimeHttpSource
 import eu.kanade.tachiyomi.lib.doodextractor.DoodExtractor
 import eu.kanade.tachiyomi.lib.filemoonextractor.FilemoonExtractor
-import eu.kanade.tachiyomi.lib.luluextractor.LuluExtractor
 import eu.kanade.tachiyomi.lib.sibnetextractor.SibnetExtractor
 import eu.kanade.tachiyomi.lib.vidmolyextractor.VidMolyExtractor
 import eu.kanade.tachiyomi.lib.voeextractor.VoeExtractor
@@ -18,7 +17,10 @@ import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.util.asJsoup
 import keiyoushi.utils.getPreferencesLazy
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
@@ -100,21 +102,35 @@ class FrenchManga :
         val ajaxResponse = client.newCall(GET(ajaxUrl, headers)).execute()
         val jsonResponse = json.parseToJsonElement(ajaxResponse.body.string()).jsonObject
 
-        val episodes = mutableListOf<SEpisode>()
+        val episodesMap = mutableMapOf<String, MutableMap<String, JsonObject>>()
 
         listOf("vf", "vostfr").forEach { langType ->
-            jsonResponse[langType]?.jsonObject?.forEach { (epNum, _) ->
-                val sEp = SEpisode.create().apply {
-                    val actualEpNum = epNum.toFloatOrNull() ?: 0f
-                    episode_number = actualEpNum
-                    name = "Épisode $epNum (${langType.uppercase()})"
-                    url = "$newsId|$langType|$epNum"
-                }
-                episodes.add(sEp)
+            jsonResponse[langType]?.jsonObject?.forEach { (epNum, hosters) ->
+                val epMap = episodesMap.getOrPut(epNum) { mutableMapOf() }
+                epMap[langType] = hosters.jsonObject
             }
         }
 
-        return episodes.sortedByDescending { it.episode_number }
+        return episodesMap.map { (epNum, langMap) ->
+            SEpisode.create().apply {
+                val actualEpNum = epNum.toFloatOrNull() ?: 0f
+                episode_number = actualEpNum
+                name = "Épisode $epNum"
+                // Store all data in URL as JSON
+                url = buildJsonObject {
+                    put("newsId", newsId)
+                    put("epNum", epNum)
+                    put(
+                        "langs",
+                        buildJsonObject {
+                            langMap.forEach { (lang, hosters) ->
+                                put(lang, hosters)
+                            }
+                        },
+                    )
+                }.toString()
+            }
+        }.sortedByDescending { it.episode_number }
     }
 
     override fun episodeListSelector(): String = throw UnsupportedOperationException()
@@ -122,52 +138,53 @@ class FrenchManga :
 
     // ============================ Video Links =============================
     override suspend fun getVideoList(episode: SEpisode): List<Video> {
-        val parts = episode.url.split("|")
-        if (parts.size < 3) return emptyList()
+        val epData = json.parseToJsonElement(episode.url).jsonObject
+        val langs = epData["langs"]?.jsonObject ?: return emptyList()
 
-        val newsId = parts[0]
-        val langType = parts[1]
-        val epNum = parts[2]
-
-        val ajaxUrl = "$baseUrl/engine/ajax/manga_episodes_api.php?id=$newsId"
-        val ajaxResponse = client.newCall(GET(ajaxUrl, headers)).execute()
-        val jsonResponse = json.parseToJsonElement(ajaxResponse.body.string()).jsonObject
-
-        val hosters = jsonResponse[langType]?.jsonObject?.get(epNum)?.jsonObject ?: return emptyList()
         val videos = mutableListOf<Video>()
 
-        val luluExtractor = LuluExtractor(client, headers)
+        val fmExtractor = FrenchMangaExtractor(client)
         val doodExtractor = DoodExtractor(client)
         val voeExtractor = VoeExtractor(client, headers)
         val sibnetExtractor = SibnetExtractor(client)
         val vidMolyExtractor = VidMolyExtractor(client, headers)
         val filemoonExtractor = FilemoonExtractor(client)
 
-        hosters.forEach { (_, hosterUrlElement) ->
-            val hosterUrl = hosterUrlElement.toString().trim('"')
-            when {
-                hosterUrl.contains("luluvid") || hosterUrl.contains("vidnest") -> {
-                    videos.addAll(luluExtractor.videosFromUrl(hosterUrl, ""))
-                }
+        langs.forEach { (langType, hosters) ->
+            hosters.jsonObject.forEach { (hosterName, hosterUrlElement) ->
+                val hosterUrl = hosterUrlElement.toString().trim('"')
+                val prefix = "[${langType.uppercase()}] "
 
-                hosterUrl.contains("dood") -> {
-                    videos.addAll(doodExtractor.videosFromUrl(hosterUrl))
-                }
+                when {
+                    hosterUrl.contains("luluvid") || hosterUrl.contains("vidnest") || hosterUrl.contains("vidzy") -> {
+                        // Use our custom extractor with correct referer
+                        val referer = when {
+                            hosterUrl.contains("vidzy") -> "https://vidzy.live/"
+                            hosterUrl.contains("vidnest") -> "https://vidnest.io/"
+                            else -> "https://luluvdo.com/"
+                        }
+                        videos.addAll(fmExtractor.videosFromUrl(hosterUrl, "${prefix}Lulu", referer))
+                    }
 
-                hosterUrl.contains("voe") -> {
-                    videos.addAll(voeExtractor.videosFromUrl(hosterUrl))
-                }
+                    hosterUrl.contains("dood") -> {
+                        videos.addAll(doodExtractor.videosFromUrl(hosterUrl, prefix))
+                    }
 
-                hosterUrl.contains("sibnet") -> {
-                    videos.addAll(sibnetExtractor.videosFromUrl(hosterUrl))
-                }
+                    hosterUrl.contains("voe") -> {
+                        videos.addAll(voeExtractor.videosFromUrl(hosterUrl, prefix))
+                    }
 
-                hosterUrl.contains("vidmoly") -> {
-                    videos.addAll(vidMolyExtractor.videosFromUrl(hosterUrl, ""))
-                }
+                    hosterUrl.contains("sibnet") -> {
+                        videos.addAll(sibnetExtractor.videosFromUrl(hosterUrl, prefix))
+                    }
 
-                hosterUrl.contains("filemoon") -> {
-                    videos.addAll(filemoonExtractor.videosFromUrl(hosterUrl))
+                    hosterUrl.contains("vidmoly") -> {
+                        videos.addAll(vidMolyExtractor.videosFromUrl(hosterUrl, prefix))
+                    }
+
+                    hosterUrl.contains("filemoon") -> {
+                        videos.addAll(filemoonExtractor.videosFromUrl(hosterUrl, prefix))
+                    }
                 }
             }
         }
