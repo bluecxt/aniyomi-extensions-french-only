@@ -44,11 +44,17 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action 8.3 :** Ajout de `fr.animesama` et `fr.southtv` dans `always_build.json`.
 - **Objectif :** Éviter que les extensions ne disparaissent du dépôt lorsqu'une seule extension est mise à jour.
 
-### 9. Fix de l'extension Franime (watch2/lpayer)
+### 9. Installation de l'environnement de build local (ARM64)
+- **Action :** Installation d'OpenJDK 17 et des outils Android SDK (`cmdline-tools`, `platforms;android-34`, `build-tools;34.0.0`).
+- **Action :** Configuration de `local.properties` pour pointer vers `/root/android-sdk`.
+- **Note :** Le binaire `aapt2` fourni par Gradle ne fonctionne pas nativement sur ARM64, ce qui empêche la compilation complète sur ce serveur spécifique, mais permet de valider la syntaxe via Gradle.
+
+### 10. Fix de l'extension Franime (watch2/lpayer)
 - **Action 9.1 :** Analyse et rétro-ingénierie du décodeur JavaScript du site `franime.fr` pour le nouveau lecteur `lpayer`.
 - **Action 9.2 :** Ajout de la dépendance `cryptoaes` à l'extension `franime`.
 - **Action 9.3 :** Implémentation du décodeur AES-CBC dans `FrAnime.kt` pour extraire les liens `m3u8` à partir des paramètres chiffrés (`a`, `o`).
-- **Action 9.4 :** Mise à jour de la version de l'extension vers la v24.
+- **Action 9.4 :** Correction du décodage du paramètre `a` (Base64 d'une chaîne Hex) et ajout d'un fallback utilisant `o` comme `videoId`.
+- **Action 9.5 :** Mise à jour de la version de l'extension vers la v25.
 - **Objectif :** Résoudre l'erreur "no available videos" causée par le changement de structure du site Franime.
 
 ## 🚀 État actuel

@@ -196,27 +196,35 @@ class FrAnime : AnimeHttpSource() {
     }
 
     private suspend fun extractLpayerVideos(watch2Url: String): List<Video> {
-        return try {
-            val url = watch2Url.toHttpUrl()
-            val a = url.queryParameter("a") ?: return emptyList()
-            val o = url.queryParameter("o") ?: return emptyList()
+        val url = watch2Url.toHttpUrl()
+        val a = url.queryParameter("a")
+        val o = url.queryParameter("o") ?: return emptyList()
 
-            val key = getLpayerKey()
-            val iv = getLpayerIv(o)
+        val key = getLpayerKey()
+        val iv = getLpayerIv(o)
 
-            // decryptedA is a JSON string
-            val videoDataJson = CryptoAES.decrypt(a, key, iv)
+        val videoId = try {
+            if (a == null) throw Exception()
+            // a is base64 of a hex string
+            val hexA = android.util.Base64.decode(a, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
+            val encryptedBytesA = hexA.decodeHex()
+            val b64A = android.util.Base64.encodeToString(encryptedBytesA, android.util.Base64.DEFAULT)
+
+            val videoDataJson = CryptoAES.decrypt(b64A, key, iv)
             val videoData = json.decodeFromString<JsonObject>(videoDataJson)
+            videoData["id"]?.jsonPrimitive?.content ?: o
+        } catch (e: Exception) {
+            o
+        }
 
-            val videoId = videoData["id"]?.jsonPrimitive?.content ?: return emptyList()
+        return try {
             val videoApiUrl = "https://lpayer.embed4me.com/api/v1/video?id=$videoId"
-
             val videoApiResponse = client.newCall(GET(videoApiUrl, headers)).await().body.string()
-            // The video API also returns a hex string that needs to be base64 encoded for CryptoAES.decrypt
-            val videoApiBase64 = android.util.Base64.encodeToString(
-                videoApiResponse.chunked(2).map { it.toInt(16).toByte() }.toByteArray(),
-                android.util.Base64.DEFAULT,
-            )
+
+            // videoApiResponse is also a hex string
+            val encryptedBytesVideo = videoApiResponse.decodeHex()
+            val videoApiBase64 = android.util.Base64.encodeToString(encryptedBytesVideo, android.util.Base64.DEFAULT)
+
             val finalVideoDataJson = CryptoAES.decrypt(videoApiBase64, key, iv)
             val finalVideoData = json.decodeFromString<JsonObject>(finalVideoDataJson)
 
