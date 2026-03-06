@@ -9,11 +9,13 @@ import java.util.regex.Pattern
 
 class FrenchMangaExtractor(private val client: OkHttpClient) {
 
-    fun videosFromUrl(url: String, prefix: String, referer: String): List<Video> {
+    fun videosFromUrl(url: String, prefix: String): List<Video> {
         val videos = mutableListOf<Video>()
+
+        // On utilise l'URL elle-même comme Referer pour le serveur de stockage
         val headers = Headers.Builder()
-            .add("Referer", referer)
-            .add("Origin", referer.removeSuffix("/"))
+            .add("Referer", url)
+            .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             .build()
 
         try {
@@ -25,6 +27,7 @@ class FrenchMangaExtractor(private val client: OkHttpClient) {
             val fixedUrl = fixM3u8Link(m3u8Url)
 
             val resolution = getResolution(fixedUrl, headers)
+            // On passe les headers complets à l'objet Video pour que le lecteur les utilise aussi
             videos.add(Video(fixedUrl, "$prefix ($resolution)", fixedUrl, headers))
         } catch (e: Exception) {
             e.printStackTrace()

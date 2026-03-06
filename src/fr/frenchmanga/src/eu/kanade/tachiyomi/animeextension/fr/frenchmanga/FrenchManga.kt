@@ -157,13 +157,8 @@ class FrenchManga :
 
                 when {
                     hosterUrl.contains("luluvid") || hosterUrl.contains("vidnest") || hosterUrl.contains("vidzy") -> {
-                        // Use our custom extractor with correct referer
-                        val referer = when {
-                            hosterUrl.contains("vidzy") -> "https://vidzy.live/"
-                            hosterUrl.contains("vidnest") -> "https://vidnest.io/"
-                            else -> "https://luluvdo.com/"
-                        }
-                        videos.addAll(fmExtractor.videosFromUrl(hosterUrl, "${prefix}Lulu", referer))
+                        // Use our custom extractor with internal Referer handling
+                        videos.addAll(fmExtractor.videosFromUrl(hosterUrl, "${prefix}Lulu"))
                     }
 
                     hosterUrl.contains("dood") -> {
