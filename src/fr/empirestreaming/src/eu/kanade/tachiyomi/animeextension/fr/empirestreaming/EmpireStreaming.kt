@@ -50,24 +50,67 @@ class EmpireStreaming :
     // ============================== Popular ===============================
     override fun popularAnimeRequest(page: Int) = GET(baseUrl, headers)
 
-    override fun popularAnimeSelector() = "div.block-forme:has(p:contains(Les plus vus)) div.content-card"
+    override fun popularAnimeSelector() = throw UnsupportedOperationException()
 
-    override fun popularAnimeFromElement(element: Element) = SAnime.create().apply {
-        setUrlWithoutDomain(element.selectFirst("a.play")!!.attr("abs:href"))
-        thumbnail_url = baseUrl + element.selectFirst("picture img")!!.attr("data-src")
-        title = element.selectFirst("h3.line-h-s, p.line-h-s")!!.text()
+    override fun popularAnimeParse(response: Response): AnimesPage {
+        val doc = response.asJsoup()
+        val scriptJson = doc.selectFirst("script:containsData(window.empire):containsData(contentBlock:)")!!
+            .data()
+            .substringAfter("contentBlock:")
+            .substringBefore(",\nstandardGamble")
+            .substringBeforeLast(",")
+            .trim()
+
+        // Find "Les plus vus" block
+        val blocks = json.decodeFromString<List<eu.kanade.tachiyomi.animeextension.fr.empirestreaming.dto.ContentBlockDto>>(scriptJson)
+        val popularBlock = blocks.find { it.name.contains("Les plus vus", true) }
+
+        val anime = popularBlock?.content?.map {
+            SAnime.create().apply {
+                title = it.title
+                setUrlWithoutDomain("/" + it.urlPath)
+                thumbnail_url = "$baseUrl/images/medias/${it.sym_image.poster}"
+            }
+        } ?: emptyList()
+
+        return AnimesPage(anime, false)
     }
+
+    override fun popularAnimeFromElement(element: Element) = throw UnsupportedOperationException()
 
     override fun popularAnimeNextPageSelector() = null
 
     // =============================== Latest ===============================
     override fun latestUpdatesRequest(page: Int) = GET(baseUrl, headers)
 
-    override fun latestUpdatesSelector() = "div.block-forme:has(p:contains(Ajout récents)) div.content-card"
+    override fun latestUpdatesSelector() = throw UnsupportedOperationException()
 
-    override fun latestUpdatesFromElement(element: Element) = popularAnimeFromElement(element)
+    override fun latestUpdatesParse(response: Response): AnimesPage {
+        val doc = response.asJsoup()
+        val scriptJson = doc.selectFirst("script:containsData(window.empire):containsData(contentBlock:)")!!
+            .data()
+            .substringAfter("contentBlock:")
+            .substringBefore(",\nstandardGamble")
+            .substringBeforeLast(",")
+            .trim()
 
-    override fun latestUpdatesNextPageSelector() = null
+        val blocks = json.decodeFromString<List<eu.kanade.tachiyomi.animeextension.fr.empirestreaming.dto.ContentBlockDto>>(scriptJson)
+        val latestBlock = blocks.find { it.name.contains("Ajout récents", true) }
+
+        val anime = latestBlock?.content?.map {
+            SAnime.create().apply {
+                title = it.title
+                setUrlWithoutDomain("/" + it.urlPath)
+                thumbnail_url = "$baseUrl/images/medias/${it.sym_image.poster}"
+            }
+        } ?: emptyList()
+
+        return AnimesPage(anime, false)
+    }
+
+    override fun latestUpdatesFromElement(element: Element) = throw UnsupportedOperationException()
+
+    override fun latestUpdatesNextPageSelector(): String? = null
 
     // =============================== Search ===============================
     override fun searchAnimeFromElement(element: Element) = throw UnsupportedOperationException()
@@ -92,8 +135,8 @@ class EmpireStreaming :
         val entries = entriesPages.getOrNull(page - 1)?.map {
             SAnime.create().apply {
                 title = it.title
-                setUrlWithoutDomain("/${it.urlPath}")
-                thumbnail_url = "$baseUrl/images/medias/${it.thumbnailPath}"
+                setUrlWithoutDomain("/" + it.urlPath)
+                thumbnail_url = "$baseUrl/images/medias/${it.sym_image.poster}"
             }
         } ?: emptyList()
 
@@ -267,8 +310,8 @@ class EmpireStreaming :
 
         private const val PREF_DOMAIN_KEY = "preferred_domain"
         private const val PREF_DOMAIN_TITLE = "Preferred domain (requires app restart)"
-        private const val PREF_DOMAIN_DEFAULT = "https://empire-stream.sbs"
-        private val PREF_DOMAIN_ENTRIES = arrayOf("https://empire-stream.net", "https://empire-streaming.app")
+        private const val PREF_DOMAIN_DEFAULT = "https://empire-streami.space"
+        private val PREF_DOMAIN_ENTRIES = arrayOf("https://empire-stream.sbs", "https://empire-stream.net", "https://empire-streaming.app")
         private val PREF_DOMAIN_VALUES = PREF_DOMAIN_ENTRIES
 
         private const val PREF_HOSTER_KEY = "preferred_hoster_new"

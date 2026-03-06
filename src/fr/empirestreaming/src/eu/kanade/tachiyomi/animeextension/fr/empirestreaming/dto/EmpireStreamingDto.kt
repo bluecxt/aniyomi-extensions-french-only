@@ -15,15 +15,19 @@ data class ContentDto(
 )
 
 @Serializable
+data class ContentBlockDto(
+    val name: String,
+    val content: List<EntryDto>,
+)
+
+@Serializable
 data class EntryDto(
     val urlPath: String,
     val title: String,
-    val image: List<ImageDto>,
+    val sym_image: SymImageDto,
 ) {
     @Serializable
-    data class ImageDto(val path: String)
-
-    val thumbnailPath by lazy { image.first().path }
+    data class SymImageDto(val poster: String)
 }
 
 @Serializable
