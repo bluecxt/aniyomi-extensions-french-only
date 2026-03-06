@@ -7,7 +7,7 @@
 
 
 **⚠️ Note Importante :**  
-Toutes les extensions présentes dans ce dépôt sont **testées et optimisées en priorité pour l'application [Anikku](https://github.com/komikku-app/anikku)**. Bien qu'elles soient techniquement compatibles avec [Aniyomi](https://github.com/aniyomiorg/aniyomi), leur fonctionnement optimal et sans bug n'y est pas systématiquement garanti.
+Toutes les extensions présentes dans ce dépôt sont **exclusivement testées et optimisées pour l'application [Anikku](https://github.com/komikku-app/anikku)**. Leur bon fonctionnement sur [Aniyomi](https://github.com/aniyomiorg/aniyomi) n'est **pas** garanti.
 
 </div>
 
@@ -39,6 +39,7 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 | :--- | :--- | :--- |
 | **Anime-Sama** | ✅ Opérationnelle | Référence (VF/VOSTFR). |
 | **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
+| **VoirAnime** | ✅ Opérationnelle | Nouvelle source DramaStream. |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
 | **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |
 
@@ -50,6 +51,7 @@ Ce dépôt regroupe et maintient les meilleures sources françaises :
 
 - **Anime-Sama** : Le plus gros catalogue actuel.
 - **FrenchAnime** : Très stable pour les classiques et nouveautés.
+- **VoirAnime** : Source riche en VF/VOSTFR.
 - **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
 - **WaveAnime** : Alternative rapide et efficace.
 
