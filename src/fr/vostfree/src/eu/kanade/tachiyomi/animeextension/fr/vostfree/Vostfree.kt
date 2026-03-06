@@ -44,19 +44,18 @@ class Vostfree :
     private val preferences by getPreferencesLazy()
 
     // ============================== Popular ===============================
-    override fun popularAnimeSelector() = "div#dle-content div.movie-poster"
+    override fun popularAnimeSelector() = "div.movie-poster"
 
-    override fun popularAnimeRequest(page: Int) = GET("$baseUrl/films-vf-vostfr/page/$page/")
+    override fun popularAnimeRequest(page: Int) = GET("$baseUrl/animes-vostfr/page/$page/")
 
     override fun popularAnimeFromElement(element: Element) = SAnime.create().apply {
-        with(element.selectFirst("a")!!) {
-            setUrlWithoutDomain(attr("href"))
-            title = text()
-        }
-        thumbnail_url = element.selectFirst("span.image img")?.absUrl("src")
+        val link = element.selectFirst("div.play a") ?: element.selectFirst("a")!!
+        setUrlWithoutDomain(link.attr("href"))
+        title = link.selectFirst("span")?.text() ?: link.attr("title").ifEmpty { element.selectFirst("img")?.attr("alt") ?: "" }
+        thumbnail_url = element.selectFirst("span.image img")?.absUrl("src") ?: element.selectFirst("img")?.absUrl("src")
     }
 
-    override fun popularAnimeNextPageSelector() = "span.next-page"
+    override fun popularAnimeNextPageSelector() = "div.navigation a:contains(Suivant), span.next-page"
 
     // =============================== Latest ===============================
     override fun latestUpdatesNextPageSelector() = throw UnsupportedOperationException()
@@ -90,13 +89,14 @@ class Vostfree :
         }
     }
 
-    override fun searchAnimeSelector() = "div#dle-content div.search-result, " + popularAnimeSelector()
+    override fun searchAnimeSelector() = "div.search-result, " + popularAnimeSelector()
 
     override fun searchAnimeParse(response: Response): AnimesPage {
         val document = response.asJsoup()
         val animes = document.select(searchAnimeSelector()).map(::searchAnimeFromElement)
+        val hasNextPage = document.selectFirst(searchAnimeNextPageSelector()) != null
 
-        return AnimesPage(animes, false)
+        return AnimesPage(animes, hasNextPage)
     }
 
     override fun searchAnimeFromElement(element: Element) = popularAnimeFromElement(element)

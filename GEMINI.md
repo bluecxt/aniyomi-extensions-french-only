@@ -62,6 +62,12 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action 11.2 :** Ajout de l'import manquant `eu.kanade.tachiyomi.util.asJsoup` pour résoudre les erreurs de compilation.
 - **Objectif :** Permettre le build de la nouvelle extension WaveAnime qui échouait en CI.
 
+### 12. Nettoyage et correctifs divers (Wiflix, Vostfree, SouthTV)
+- **Action 12.1 :** Suppression définitive de l'extension `Wiflix` car le site n'existe plus.
+- **Action 12.2 :** Correction de l'extension `Vostfree` (v36) : mise à jour des sélecteurs CSS pour le chargement de la liste d'animés et de la recherche.
+- **Action 12.3 :** Correction de l'extension `SouthTV` (v4) : résolution du crash d'index et mise à jour du domaine vidéo vers `southtv.fr`.
+- **Objectif :** Maintenir la fonctionnalité globale du dépôt.
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`
