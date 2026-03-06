@@ -17,8 +17,11 @@ class JetAnime :
     DooPlay(
         "fr",
         "JetAnime",
-        "https://ssl.jetanimes.com",
+        "https://on.jetanimes.com",
     ) {
+
+    override fun headersBuilder() = super.headersBuilder()
+        .add("Referer", baseUrl)
 
     // ============================== Popular ===============================
 
@@ -128,11 +131,14 @@ class JetAnime :
         .build()
 
     override fun videoListParse(response: Response): List<Video> {
-        val players = response.asJsoup().select("ul#playeroptionsul li")
+        val document = response.asJsoup()
+        val players = document.select("ul#playeroptionsul li")
+        val nonce = document.selectFirst("script:containsData(nonce)")?.data()
+            ?.substringAfter("\"nonce\":\"")?.substringBefore("\"") ?: ""
 
-        val videoList = players.mapNotNull { player ->
+        return players.mapNotNull { player ->
             runCatching {
-                val url = getPlayerUrl(player).ifEmpty { return@mapNotNull null }
+                val url = getPlayerUrl(player, nonce).ifEmpty { return@mapNotNull null }
                 val redirected = noRedirects.newCall(
                     GET(url),
                 ).execute().headers["location"] ?: url
@@ -141,22 +147,27 @@ class JetAnime :
                 getPlayerVideos(redirected, name)
             }.getOrNull()
         }.flatten()
-
-        require(videoList.isNotEmpty()) { "Failed to fetch videos" }
-        return emptyList()
     }
 
-    private fun getPlayerUrl(player: Element): String {
+    private fun getPlayerUrl(player: Element, nonce: String): String {
         val type = player.attr("data-type")
         val id = player.attr("data-post")
         val num = player.attr("data-nume")
         if (num == "trailer") return ""
-        return client.newCall(GET("$baseUrl/wp-json/dooplayer/v1/post/$id?type=$type&source=$num"))
-            .execute()
-            .body.string()
-            .substringAfter("\"embed_url\":\"")
-            .substringBefore("\",")
-            .replace("\\", "")
+
+        val url = "$baseUrl/wp-admin/admin-ajax.php"
+        val body = okhttp3.FormBody.Builder()
+            .add("action", "doo_player_ajax")
+            .add("post", id)
+            .add("nume", num)
+            .add("type", type)
+            .build()
+
+        // DooPlay often uses admin-ajax.php with action=doo_player_ajax
+        // Let's try this first as the wp-json endpoint returned empty.
+
+        val response = client.newCall(okhttp3.Request.Builder().url(url).post(body).build()).execute().body.string()
+        return response.substringAfter("\"embed_url\":\"").substringBefore("\"").replace("\\", "")
     }
 
     private fun getPlayerVideos(url: String, name: String): List<Video> = when {
