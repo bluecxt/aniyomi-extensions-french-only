@@ -78,6 +78,10 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action :** Suppression définitive des extensions `OtakuFR`, `VoirCartoon` et `EmpireStreaming`.
 - **Objectif :** Retirer les sources dont les sites n'existent plus ou ne correspondent pas au but du dépôt (uniquement des animes).
 
+### 15. Correction de la synchronisation du Repo (Cleanup des APKs)
+- **Action :** Mise à jour de `move-built-apks.py` pour détecter et supprimer les APKs dont le code source a été retiré de `src/`.
+- **Objectif :** Éviter que des extensions supprimées (comme `otakufr` ou `voircartoon`) ne restent indéfiniment dans la liste des extensions disponibles sur Anikku/Aniyomi.
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`

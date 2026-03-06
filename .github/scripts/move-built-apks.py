@@ -17,6 +17,27 @@ def get_pkg_name(filename):
     m = re.match(r"aniyomi-(.*?)-v.*\.apk", filename)
     return m.group(1) if m else None
 
+# 1. Cleanup: Remove APKs for extensions that no longer exist in src/
+# This ensures that if we delete src/fr/otakufr, its APK is also removed from the repo.
+if REPO_APK_DIR.exists():
+    # Get all active extension names (e.g., 'fr.franime')
+    active_extensions = set()
+    src_dir = Path("src")
+    if src_dir.exists():
+        for lang_dir in src_dir.iterdir():
+            if lang_dir.is_dir():
+                for ext_dir in lang_dir.iterdir():
+                    if ext_dir.is_dir():
+                        active_extensions.add(f"{lang_dir.name}.{ext_dir.name}")
+    
+    # Check all APKs in the repo
+    for repo_apk in REPO_APK_DIR.glob("*.apk"):
+        pkg_name = get_pkg_name(repo_apk.name)
+        if pkg_name and pkg_name not in active_extensions:
+            print(f"Deleting orphaned APK (extension removed from src): {repo_apk.name}")
+            repo_apk.unlink()
+
+# 2. Move new APKs
 if ARTIFACTS_DIR.exists():
     for apk in ARTIFACTS_DIR.glob("**/*.apk"):
         if "-release.apk" not in apk.name and "-debug.apk" not in apk.name:
