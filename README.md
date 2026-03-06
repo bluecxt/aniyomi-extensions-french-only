@@ -41,8 +41,8 @@ Seules les extensions suivantes sont confirmées comme 100% fonctionnelles. Les 
 | **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
 | **WaveAnime** | ✅ Opérationnelle | Source récente fonctionnelle. |
-| **JetAnime** | ✅ Opérationnelle | Domaine `on.jetanimes.com` et nouveaux lecteurs. |
-| **Voiranime** | ✅ Opérationnelle | Sélecteurs et extraction corrigés. |
+| **JetAnime** | ❌ Instable | Fix en cours (v18). |
+| **Voiranime** | ❌ Instable | Fix en cours (v5). |
 | **StreamVF** | ❌ Instable | En cours de vérification. |
 | **FrenchManga** | ❌ Instable | En cours de vérification. |
 | **Animoflix** | ❌ Instable | Protections Cloudflare. |
