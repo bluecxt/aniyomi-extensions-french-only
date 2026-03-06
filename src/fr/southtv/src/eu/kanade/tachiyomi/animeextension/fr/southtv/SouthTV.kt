@@ -14,7 +14,7 @@ class SouthTV : AnimeHttpSource() {
 
     override val name = "SouthTV"
     override val baseUrl = "https://southtv.fr"
-    private val videoUrlHost = "https://southtv.info"
+    private val videoUrlHost = "https://southtv.fr"
     override val lang = "fr"
     override val supportsLatest = false
 
@@ -89,7 +89,7 @@ class SouthTV : AnimeHttpSource() {
     override suspend fun getEpisodeList(anime: SAnime): List<SEpisode> {
         val episodes = mutableListOf<SEpisode>()
         if (anime.url.startsWith("south_park")) {
-            val lang = anime.url.split('_')[2]
+            val lang = anime.url.substringAfterLast('_')
             var episodeCountSoFar = 0
             episodesPerSeason.forEachIndexed { seasonIndex, count ->
                 for (i in 1..count) {
@@ -128,6 +128,8 @@ class SouthTV : AnimeHttpSource() {
 
     override suspend fun getVideoList(episode: SEpisode): List<Video> {
         val videoList = mutableListOf<Video>()
+        val videoHeaders = Headers.Builder().add("User-Agent", userAgent).build()
+
         if (episode.url.startsWith("south_park")) {
             val parts = episode.url.split("#")[1].split("&")
             val lang = parts.find { it.startsWith("lang=") }!!.substring(5)
@@ -136,22 +138,14 @@ class SouthTV : AnimeHttpSource() {
             val videoUrlBase = if (lang == "vf") "$videoUrlHost/southpark/" else "$videoUrlHost/southparkvo/"
             val videoUrl = "${videoUrlBase}s${season}e$episodeNum.mp4"
 
-            val videoHeaders = Headers.Builder().apply {
-                add("User-Agent", userAgent)
-                if (lang == "vf") {
-                    add("Referer", "$baseUrl/")
-                }
-            }.build()
             videoList.add(Video(videoUrl, "default", videoUrl, headers = videoHeaders))
         } else if (episode.url.startsWith("american_dad")) {
             val episodeNum = episode.url.split("e=")[1]
             val videoUrl = "$videoUrlHost/americandad/s1e$episodeNum.mp4"
-            val videoHeaders = Headers.Builder().add("User-Agent", userAgent).build()
             videoList.add(Video(videoUrl, "American Dad E$episodeNum", videoUrl, headers = videoHeaders))
         } else { // movie
             val moviePath = episode.url.substringAfter("movie_")
             val videoUrl = if (moviePath.contains("/")) "$videoUrlHost/$moviePath" else "$videoUrlHost/films/$moviePath"
-            val videoHeaders = Headers.Builder().add("User-Agent", userAgent).build()
             videoList.add(Video(videoUrl, "default", videoUrl, headers = videoHeaders))
         }
         return videoList

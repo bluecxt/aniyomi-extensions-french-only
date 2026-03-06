@@ -1,8 +1,8 @@
 ext {
     extName = 'SouthTV'
     extClass = '.SouthTV'
-    extVersionCode = 3 // Simple increment
-    extVersionName = "1.0.0" // Your custom version
+    extVersionCode = 4 // Simple increment
+    extVersionName = "1.0.1" // Your custom version
     isNsfw = false
 }
 apply from: "$rootDir/common.gradle"
