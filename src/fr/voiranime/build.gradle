@@ -13,4 +13,5 @@ dependencies {
     implementation(project(':lib:vidmolyextractor'))
     implementation(project(':lib:okruextractor'))
     implementation(project(':lib:vkextractor'))
+    implementation(project(':lib:filemoonextractor'))
 }

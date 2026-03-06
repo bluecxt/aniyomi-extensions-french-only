@@ -1,7 +1,7 @@
 package eu.kanade.tachiyomi.animeextension.fr.voiranime
 
+import android.util.Base64
 import androidx.preference.EditTextPreference
-import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
 import eu.kanade.tachiyomi.animesource.ConfigurableAnimeSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
@@ -11,19 +11,19 @@ import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.ParsedAnimeHttpSource
 import eu.kanade.tachiyomi.lib.doodextractor.DoodExtractor
+import eu.kanade.tachiyomi.lib.filemoonextractor.FilemoonExtractor
 import eu.kanade.tachiyomi.lib.okruextractor.OkruExtractor
 import eu.kanade.tachiyomi.lib.sibnetextractor.SibnetExtractor
 import eu.kanade.tachiyomi.lib.vidmolyextractor.VidMolyExtractor
 import eu.kanade.tachiyomi.lib.vkextractor.VkExtractor
 import eu.kanade.tachiyomi.lib.voeextractor.VoeExtractor
 import eu.kanade.tachiyomi.network.GET
-import eu.kanade.tachiyomi.network.POST
 import eu.kanade.tachiyomi.util.asJsoup
+import eu.kanade.tachiyomi.util.parallelCatchingFlatMapBlocking
 import keiyoushi.utils.getPreferencesLazy
-import okhttp3.FormBody
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.Response
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
@@ -44,20 +44,21 @@ class VoirAnime :
     private val preferences by getPreferencesLazy()
 
     // ============================== Popular ===============================
-    override fun popularAnimeRequest(page: Int): Request = GET("$baseUrl/page/$page/?m_orderby=views", headers)
+    override fun popularAnimeRequest(page: Int): Request = GET("$baseUrl/series/?page=$page&order=popular", headers)
 
-    override fun popularAnimeSelector(): String = ".c-tabs-item__content .page-item-detail, .search-wrap .page-item-detail"
+    override fun popularAnimeSelector(): String = "div.listupd article.bs"
 
     override fun popularAnimeFromElement(element: Element): SAnime = SAnime.create().apply {
-        title = element.select(".post-title a").text()
-        setUrlWithoutDomain(element.select(".post-title a").attr("href"))
-        thumbnail_url = element.select("img").attr("abs:src")
+        val link = element.selectFirst("a")!!
+        setUrlWithoutDomain(link.attr("abs:href"))
+        title = link.selectFirst(".tt")!!.ownText()
+        thumbnail_url = link.selectFirst("img")?.attr("abs:src")
     }
 
-    override fun popularAnimeNextPageSelector(): String = ".nextpostslink"
+    override fun popularAnimeNextPageSelector(): String = "div.pagination a.next"
 
     // =============================== Latest ===============================
-    override fun latestUpdatesRequest(page: Int): Request = GET("$baseUrl/page/$page/?m_orderby=latest", headers)
+    override fun latestUpdatesRequest(page: Int): Request = GET("$baseUrl/series/?page=$page&order=update", headers)
 
     override fun latestUpdatesSelector(): String = popularAnimeSelector()
 
@@ -69,77 +70,57 @@ class VoirAnime :
     override fun searchAnimeRequest(page: Int, query: String, filters: AnimeFilterList): Request {
         if (query.startsWith(PREFIX_SEARCH)) {
             val id = query.removePrefix(PREFIX_SEARCH)
-            return GET("$baseUrl/anime/$id", headers)
+            return GET("$baseUrl/series/$id", headers)
         }
-        val url = "$baseUrl/page/$page/".toHttpUrl().newBuilder()
-            .addQueryParameter("s", query)
-            .addQueryParameter("post_type", "wp-manga")
-        return GET(url.build().toString(), headers)
+        return GET("$baseUrl/page/$page/?s=$query", headers)
     }
 
-    override fun searchAnimeSelector(): String = ".search-wrap .page-item-detail, .c-tabs-item__content .page-item-detail"
+    override fun searchAnimeSelector(): String = "div.listupd article.bs, .result-item article"
 
-    override fun searchAnimeFromElement(element: Element): SAnime = popularAnimeFromElement(element)
+    override fun searchAnimeFromElement(element: Element): SAnime = SAnime.create().apply {
+        val link = element.selectFirst("a")!!
+        setUrlWithoutDomain(link.attr("abs:href"))
+        title = (element.selectFirst(".tt") ?: element.selectFirst(".title")).let { it!!.ownText() }
+        thumbnail_url = element.selectFirst("img")?.attr("abs:src")
+    }
 
     override fun searchAnimeNextPageSelector(): String = popularAnimeNextPageSelector()
 
     // =========================== Anime Details ============================
     override fun animeDetailsParse(document: Document): SAnime = SAnime.create().apply {
-        title = document.select(".post-title h1").text()
-        description = document.select(".description-summary .summary__content").text()
-        genre = document.select(".genres-content a").joinToString { it.text() }
-        status = when (document.select(".post-status .summary-content").text().lowercase()) {
-            "en cours" -> SAnime.ONGOING
-            "terminé" -> SAnime.COMPLETED
+        title = document.selectFirst("h1.entry-title")!!.text()
+        description = document.select(".entry-content[itemprop=description]").text()
+        genre = document.select(".genxed a").joinToString { it.text() }
+        status = when (document.select("span:contains(Status) i").text().lowercase()) {
+            "ongoing", "en cours" -> SAnime.ONGOING
+            "completed", "terminé" -> SAnime.COMPLETED
             else -> SAnime.UNKNOWN
         }
-        thumbnail_url = document.select(".summary_image img").attr("abs:src")
+        thumbnail_url = document.selectFirst(".thumb img")?.attr("abs:src")
     }
 
     // ============================== Episodes ==============================
-    override fun episodeListSelector(): String = ".listing-chapters_wrap .wp-manga-chapter"
+    override fun episodeListSelector(): String = "div.eplister ul li a"
 
     override fun episodeFromElement(element: Element): SEpisode = SEpisode.create().apply {
-        val link = element.select("a")
-        name = link.text()
-        setUrlWithoutDomain(link.attr("href"))
-        // Madara usually lists chapters/episodes by date, we can try to parse it
-        // date_upload = ...
+        setUrlWithoutDomain(element.attr("abs:href"))
+        val epNum = element.selectFirst(".epl-num")?.text() ?: "1"
+        name = "Épisode $epNum"
+        episode_number = epNum.toFloatOrNull() ?: 0f
+        scanlator = element.selectFirst(".epl-sub")?.text()
     }
 
     override fun episodeListParse(response: Response): List<SEpisode> {
         val document = response.asJsoup()
-        val episodes = mutableListOf<SEpisode>()
-
-        // Madara sometimes uses AJAX for episode list
-        val mangaId = document.select("#manga-chapters-holder").attr("data-id")
-        if (mangaId.isNotEmpty()) {
-            val ajaxUrl = "$baseUrl/wp-admin/admin-ajax.php"
-            val body = FormBody.Builder()
-                .add("action", "manga_get_chapters")
-                .add("manga", mangaId)
-                .build()
-            val ajaxResponse = client.newCall(POST(ajaxUrl, headers, body)).execute()
-            val ajaxDocument = ajaxResponse.asJsoup()
-            ajaxDocument.select(episodeListSelector()).forEach {
-                episodes.add(episodeFromElement(it))
-            }
-        } else {
-            document.select(episodeListSelector()).forEach {
-                episodes.add(episodeFromElement(it))
-            }
-        }
-
-        return episodes.reversed()
+        return document.select(episodeListSelector()).map(::episodeFromElement).reversed()
     }
 
     // ============================ Video Links =============================
-    override fun videoListSelector(): String = ".player-embed iframe, .video-player iframe"
+    override fun videoListSelector(): String = "select.mirror option[data-index]"
 
     override suspend fun getVideoList(episode: SEpisode): List<Video> {
         val response = client.newCall(GET(baseUrl + episode.url, headers)).execute()
         val document = response.asJsoup()
-        val videos = mutableListOf<Video>()
 
         val doodExtractor = DoodExtractor(client)
         val sibnetExtractor = SibnetExtractor(client)
@@ -147,24 +128,24 @@ class VoirAnime :
         val vidMolyExtractor = VidMolyExtractor(client, headers)
         val okruExtractor = OkruExtractor(client)
         val vkExtractor = VkExtractor(client, headers)
+        val filemoonExtractor = FilemoonExtractor(client)
 
-        // Madara video players are often in iframes or script tags
-        document.select("iframe").forEach { iframe ->
-            val url = iframe.attr("abs:src")
-            videos.addAll(extractVideos(url, doodExtractor, sibnetExtractor, voeExtractor, vidMolyExtractor, okruExtractor, vkExtractor))
-        }
+        val items = document.select(videoListSelector())
+        return items.parallelCatchingFlatMapBlocking { element ->
+            val encodedData = element.attr("value")
+            if (encodedData.isBlank()) return@parallelCatchingFlatMapBlocking emptyList()
 
-        // Sometimes URLs are in scripts
-        val scriptData = document.select("script").joinToString { it.data() }
-        val urlRegex = Regex("""https?://[^\s'"]+""")
-        urlRegex.findAll(scriptData).forEach { match ->
-            val url = match.value
-            if (url.contains("dood") || url.contains("sibnet") || url.contains("voe") || url.contains("vidmoly") || url.contains("ok.ru") || url.contains("vk.com")) {
-                videos.addAll(extractVideos(url, doodExtractor, sibnetExtractor, voeExtractor, vidMolyExtractor, okruExtractor, vkExtractor))
+            val decodedHtml = try {
+                Base64.decode(encodedData, Base64.DEFAULT).toString(Charsets.UTF_8)
+            } catch (e: Exception) {
+                return@parallelCatchingFlatMapBlocking emptyList()
             }
-        }
 
-        return videos
+            val iframeUrl = Jsoup.parse(decodedHtml).selectFirst("iframe")?.attr("src")
+                ?: return@parallelCatchingFlatMapBlocking emptyList()
+
+            extractVideos(iframeUrl, doodExtractor, sibnetExtractor, voeExtractor, vidMolyExtractor, okruExtractor, vkExtractor, filemoonExtractor)
+        }
     }
 
     private fun extractVideos(
@@ -175,14 +156,19 @@ class VoirAnime :
         vidMoly: VidMolyExtractor,
         okru: OkruExtractor,
         vk: VkExtractor,
-    ): List<Video> = when {
-        url.contains("dood") -> dood.videosFromUrl(url)
-        url.contains("sibnet") -> sibnet.videosFromUrl(url)
-        url.contains("voe") -> voe.videosFromUrl(url)
-        url.contains("vidmoly") -> vidMoly.videosFromUrl(url)
-        url.contains("ok.ru") -> okru.videosFromUrl(url)
-        url.contains("vk.com") -> vk.videosFromUrl(url)
-        else -> emptyList()
+        filemoon: FilemoonExtractor,
+    ): List<Video> {
+        val absoluteUrl = if (url.startsWith("//")) "https:$url" else url
+        return when {
+            absoluteUrl.contains("dood") -> dood.videosFromUrl(absoluteUrl)
+            absoluteUrl.contains("sibnet") -> sibnet.videosFromUrl(absoluteUrl)
+            absoluteUrl.contains("voe") -> voe.videosFromUrl(absoluteUrl)
+            absoluteUrl.contains("vidmoly") -> vidMoly.videosFromUrl(absoluteUrl)
+            absoluteUrl.contains("ok.ru") -> okru.videosFromUrl(absoluteUrl)
+            absoluteUrl.contains("vk.com") -> vk.videosFromUrl(absoluteUrl)
+            absoluteUrl.contains("filemoon") -> filemoon.videosFromUrl(absoluteUrl)
+            else -> emptyList()
+        }
     }
 
     override fun videoFromElement(element: Element): Video = throw UnsupportedOperationException()
