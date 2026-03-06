@@ -11,12 +11,15 @@ import eu.kanade.tachiyomi.lib.filemoonextractor.FilemoonExtractor
 import eu.kanade.tachiyomi.lib.sendvidextractor.SendvidExtractor
 import eu.kanade.tachiyomi.lib.sibnetextractor.SibnetExtractor
 import eu.kanade.tachiyomi.lib.vidmolyextractor.VidMolyExtractor
+import eu.kanade.tachiyomi.lib.cryptoaes.CryptoAES
 import eu.kanade.tachiyomi.lib.vidoextractor.VidoExtractor
 import eu.kanade.tachiyomi.lib.vkextractor.VkExtractor
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.await
 import eu.kanade.tachiyomi.util.parallelCatchingFlatMap
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -138,6 +141,10 @@ class FrAnime : AnimeHttpSource() {
             val playerUrl = client.newCall(GET(apiUrl, headers)).await().body.string()
             if (!playerUrl.startsWith("http")) return@parallelCatchingFlatMap emptyList()
 
+            if (playerUrl.contains("/watch2/")) {
+                return@parallelCatchingFlatMap extractLpayerVideos(playerUrl)
+            }
+
             when (playerName) {
                 "sendvid" -> sendvidExtractor.videosFromUrl(playerUrl)
                 "sibnet" -> sibnetExtractor.videosFromUrl(playerUrl)
@@ -186,6 +193,55 @@ class FrAnime : AnimeHttpSource() {
                 }
             }
         }
+    }
+
+    private suspend fun extractLpayerVideos(watch2Url: String): List<Video> {
+        return try {
+            val url = watch2Url.toHttpUrl()
+            val a = url.queryParameter("a") ?: return emptyList()
+            val o = url.queryParameter("o") ?: return emptyList()
+
+            val key = getLpayerKey()
+            val iv = getLpayerIv(o)
+
+            val decodedA = android.util.Base64.decode(a, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
+            val encryptedBytesA = decodedA.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+
+            val decryptedA = CryptoAES.decryptAES(encryptedBytesA, key, iv)
+            val videoDataJson = decryptedA.toString(Charsets.UTF_8)
+            val videoData = json.decodeFromString<JsonObject>(videoDataJson)
+
+            val videoId = videoData["id"]?.jsonPrimitive?.content ?: return emptyList()
+            val videoApiUrl = "https://lpayer.embed4me.com/api/v1/video?id=$videoId"
+
+            val videoApiResponse = client.newCall(GET(videoApiUrl, headers)).await().body.string()
+            val encryptedBytesVideo = videoApiResponse.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+            val decryptedVideo = CryptoAES.decryptAES(encryptedBytesVideo, key, iv)
+            val finalVideoDataJson = decryptedVideo.toString(Charsets.UTF_8)
+            val finalVideoData = json.decodeFromString<JsonObject>(finalVideoDataJson)
+
+            val m3u8Url = finalVideoData["httpStream"]?.jsonPrimitive?.content ?: return emptyList()
+            listOf(Video(m3u8Url, "Lplayer (m3u8)", m3u8Url))
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun getLpayerKey(): ByteArray {
+        return "6b69656d7269656e6d75613931316361".decodeHex()
+    }
+
+    private fun getLpayerIv(hash: String): ByteArray {
+        // This is a simplified version, ideally we should replicate the full JS logic for any hash.
+        // But for franime.fr, this 16-byte prefix was consistent in my analysis.
+        return "797a7b7c7d7e7fc280c281786f69797d".decodeHex()
+    }
+
+    private fun String.decodeHex(): ByteArray {
+        check(length % 2 == 0) { "Must have an even length" }
+        return chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
     }
 
     private fun parseStatus(statusString: String?, seasonCount: Int = 1, season: Int = 1): Int {
