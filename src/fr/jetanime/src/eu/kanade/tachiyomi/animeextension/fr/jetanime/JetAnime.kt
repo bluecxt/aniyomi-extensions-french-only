@@ -37,7 +37,7 @@ class JetAnime :
         val img = element.selectFirst("img")!!
         val url = element.selectFirst("a")?.attr("href") ?: element.attr("href")
         val slug = url.substringAfter("/episodes/")
-        setUrlWithoutDomain("/serie/${slug.substringBeforeLast("-episode").substringBeforeLast("-saison")}")
+        setUrlWithoutDomain("/serie/${slug.substringBeforeLast("-saison").substringBeforeLast("-episode")}")
         title = img.attr("alt")
         thumbnail_url = img.getImageUrl()
     }

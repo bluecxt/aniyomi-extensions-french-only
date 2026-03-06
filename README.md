@@ -31,22 +31,36 @@ Si la méthode ci-dessus ne fonctionne pas, copiez et collez cette URL (directe)
 https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json
 ```
 
+## ⚠️ État des extensions (Mars 2026)
+
+Certaines extensions rencontrent des problèmes suite à des mises à jour majeures des sites sources :
+
+| Extension | État | Problème |
+| :--- | :--- | :--- |
+| **Anime-Sama** | ✅ Opérationnelle | Catalogue immense, nouveautés VF et VOSTFR. |
+| **StreamVF** | ✅ Opérationnelle | Nouvelle extension stable (stream-vf.top). |
+| **FrenchManga** | ✅ Opérationnelle | Nouvelle extension stable (DLE). |
+| **SouthTV** | ✅ Opérationnelle | Spécialiste dessins animés et séries US. |
+| **JetAnime** | ✅ Opérationnelle | Domaine `on.jetanimes.com` (Réinstallez si 404). |
+| **Voiranime** | ✅ Opérationnelle | Sélecteurs de lecteurs vidéo mis à jour. |
+| **Animoflix** | ❌ Instable | Lecteurs protégés par Cloudflare/JS. |
+| **Vostfree** | ❌ Instable | Chargement des épisodes AJAX bloqué. |
+| **FrAnime** | ❌ Instable | API de recherche cassée et encryption complexe. |
+
+---
+
 ## 🛠️ Extensions disponibles
 
-Ce dépôt regroupe et maintient les sources françaises pour regarder vos animes préférés. Voici la liste complète des extensions actuelles :
+Ce dépôt regroupe et maintient les sources françaises. Voici la liste des extensions principales :
 
-- **Anime-Sama** : Un catalogue immense, incluant les nouveautés VF et VOSTFR avec plusieurs lecteurs.
-- **AnimeVostfr** : Spécialiste de la VOSTFR de haute qualité.
-- **AniSama** : Une alternative robuste pour de nombreux animes populaires.
-- **EmpireStreaming** : Source généraliste proposant des films et séries en plus des animes.
-- **Franime** : Excellente source française avec une interface propre et rapide.
-- **FrenchAnime** : Une source historique avec un catalogue très varié.
-- **Jetanime** : L'un des sites les plus anciens et complets du web français.
-- **Otakufr** : Propose des versions de haute qualité pour les animes saisonniers.
-- **SouthTV** : Le spécialiste pour South Park, American Dad et les Griffins en streaming rapide.
-- **VoirCartoon** : Dédié aux dessins animés, cartoons et films d'animation.
-- **Vostfree** : Une référence incontournable pour la VOSTFR et la VF.
-- **Wiflix** : Source généraliste avec une section anime très bien fournie.
+- **Anime-Sama** : Un catalogue immense avec plusieurs lecteurs.
+- **StreamVF** : Rapide et efficace, lecteurs variés (Dood, Voe, Sibnet).
+- **FrenchManga** : Moteur DLE robuste pour les animés VF/VOSTFR.
+- **SouthTV** : Le spécialiste pour South Park et l'animation US.
+- **Jetanime** : L'un des sites les plus anciens (Actuellement en maintenance).
+- **Voiranime** : Large choix d'animés (Actuellement en maintenance).
+- **Vostfree** : Référence pour la VOSTFR et la VF (Actuellement instable).
+- **Franime** : Interface propre et rapide (Actuellement instable).
 
 Toutes les extensions se trouvent dans le dossier `src/fr/`. Tous les outils d'extraction vidéo (nécessaires si vous voulez ajouter de nouveaux sites) ont été conservés dans le dossier `lib/`.
 

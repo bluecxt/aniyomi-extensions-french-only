@@ -120,7 +120,7 @@ class Voiranime :
             }
         }
 
-        val players = document.select("select#player-option option, select.player-option option, select.mirror option")
+        val players = document.select("select#player-option option, select.player-option option, select.mirror option, div.item-mirror select option")
 
         videos.addAll(
             players.toList().parallelCatchingFlatMapBlocking {
