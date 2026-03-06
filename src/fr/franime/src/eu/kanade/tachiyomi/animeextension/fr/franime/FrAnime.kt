@@ -200,12 +200,16 @@ class FrAnime : AnimeHttpSource() {
         val a = url.queryParameter("a")
         val o = url.queryParameter("o") ?: return emptyList()
 
-        val key = getLpayerKey()
-        val iv = getLpayerIv(o)
+        val lpayerHeaders = headers.newBuilder()
+            .set("Origin", "https://lpayer.embed4me.com")
+            .set("Referer", "https://lpayer.embed4me.com/")
+            .build()
+
+        val key = "6b69656d7269656e6d75613931316361".decodeHex()
+        val iv = "797a7b7c7d7e7fc280c281786f69797d".decodeHex()
 
         val videoId = try {
             if (a == null) throw Exception()
-            // a is base64 of a hex string
             val hexA = android.util.Base64.decode(a, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
             val encryptedBytesA = hexA.decodeHex()
             val b64A = android.util.Base64.encodeToString(encryptedBytesA, android.util.Base64.DEFAULT)
@@ -219,9 +223,8 @@ class FrAnime : AnimeHttpSource() {
 
         return try {
             val videoApiUrl = "https://lpayer.embed4me.com/api/v1/video?id=$videoId"
-            val videoApiResponse = client.newCall(GET(videoApiUrl, headers)).await().body.string()
+            val videoApiResponse = client.newCall(GET(videoApiUrl, lpayerHeaders)).await().body.string()
 
-            // videoApiResponse is also a hex string
             val encryptedBytesVideo = videoApiResponse.decodeHex()
             val videoApiBase64 = android.util.Base64.encodeToString(encryptedBytesVideo, android.util.Base64.DEFAULT)
 
@@ -229,18 +232,11 @@ class FrAnime : AnimeHttpSource() {
             val finalVideoData = json.decodeFromString<JsonObject>(finalVideoDataJson)
 
             val m3u8Url = finalVideoData["httpStream"]?.jsonPrimitive?.content ?: return emptyList()
-            listOf(Video(m3u8Url, "Lplayer (m3u8)", m3u8Url))
+            val absoluteUrl = if (m3u8Url.startsWith("http")) m3u8Url else "https://lpayer.embed4me.com$m3u8Url"
+            listOf(Video(absoluteUrl, "Lplayer (m3u8)", absoluteUrl, headers = lpayerHeaders))
         } catch (e: Exception) {
             emptyList()
         }
-    }
-
-    private fun getLpayerKey(): ByteArray = "6b69656d7269656e6d75613931316361".decodeHex()
-
-    private fun getLpayerIv(hash: String): ByteArray {
-        // This is a simplified version, ideally we should replicate the full JS logic for any hash.
-        // But for franime.fr, this 16-byte prefix was consistent in my analysis.
-        return "797a7b7c7d7e7fc280c281786f69797d".decodeHex()
     }
 
     private fun String.decodeHex(): ByteArray {
