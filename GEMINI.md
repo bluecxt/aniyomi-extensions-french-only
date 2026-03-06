@@ -57,6 +57,11 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action 9.5 :** Mise à jour de la version de l'extension vers la v25.
 - **Objectif :** Résoudre l'erreur "no available videos" causée par le changement de structure du site Franime.
 
+### 11. Fix et formatage de l'extension WaveAnime
+- **Action 11.1 :** Correction des erreurs de formatage Kotlin via `./gradlew spotlessApply`.
+- **Action 11.2 :** Ajout de l'import manquant `eu.kanade.tachiyomi.util.asJsoup` pour résoudre les erreurs de compilation.
+- **Objectif :** Permettre le build de la nouvelle extension WaveAnime qui échouait en CI.
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`

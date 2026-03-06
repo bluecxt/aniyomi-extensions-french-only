@@ -7,6 +7,7 @@ import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.network.GET
+import eu.kanade.tachiyomi.util.asJsoup
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.Response
@@ -58,13 +59,13 @@ class WaveAnime : AnimeHttpSource() {
                     setUrlWithoutDomain("/catalog/serie?id=$serieId")
                 } else {
                     // Fallback or skip
-                    setUrlWithoutDomain("/") 
+                    setUrlWithoutDomain("/")
                 }
                 title = element.selectFirst("h4")?.text() ?: ""
                 thumbnail_url = baseUrl + element.selectFirst("img")!!.attr("src")
             }
         }.distinctBy { it.url }.filter { it.url != "/" }
-        
+
         return AnimesPage(anime, false)
     }
 
@@ -102,23 +103,25 @@ class WaveAnime : AnimeHttpSource() {
     override fun episodeListParse(response: Response): List<SEpisode> {
         val document = response.asJsoup()
         val episodes = mutableListOf<SEpisode>()
-        
+
         document.select("div.component.episode-card-grid").forEach { seasonGrid ->
             val seasonNum = seasonGrid.attr("data-season")
             seasonGrid.select("div.component.episode-card").forEach { element ->
-                episodes.add(SEpisode.create().apply {
-                    val link = element.selectFirst("a")!!.attr("href")
-                    setUrlWithoutDomain(link)
-                    val epName = element.selectFirst("h4")?.text() ?: ""
-                    val epNum = element.selectFirst("h5")?.text() ?: "" // e.g. "S1 E1"
-                    name = if (epNum.isNotEmpty()) "$epNum - $epName" else epName
-                    
-                    // Extract episode number from "S1 E1"
-                    episode_number = epNum.substringAfter("E").toFloatOrNull() ?: 0f
-                })
+                episodes.add(
+                    SEpisode.create().apply {
+                        val link = element.selectFirst("a")!!.attr("href")
+                        setUrlWithoutDomain(link)
+                        val epName = element.selectFirst("h4")?.text() ?: ""
+                        val epNum = element.selectFirst("h5")?.text() ?: "" // e.g. "S1 E1"
+                        name = if (epNum.isNotEmpty()) "$epNum - $epName" else epName
+
+                        // Extract episode number from "S1 E1"
+                        episode_number = epNum.substringAfter("E").toFloatOrNull() ?: 0f
+                    },
+                )
             }
         }
-        
+
         return episodes.reversed()
     }
 
@@ -126,19 +129,17 @@ class WaveAnime : AnimeHttpSource() {
     override fun videoListParse(response: Response): List<Video> {
         val document = response.asJsoup()
         val html = document.toString()
-        
+
         // Find /playback/ID/master.mpd in script
         // dash.initialize(video, "/playback/7iSBC3SvyqD/master.mpd", true);
         val playbackPath = Regex("""/playback/([^/]+)/master\.mpd""").find(html)?.value
             ?: return emptyList()
-            
+
         val videoUrl = baseUrl + playbackPath
         return listOf(
-            Video(videoUrl, "WavePlayer (DASH)", videoUrl)
+            Video(videoUrl, "WavePlayer (DASH)", videoUrl),
         )
     }
 
-    override fun List<Video>.sort(): List<Video> {
-        return this
-    }
+    override fun List<Video>.sort(): List<Video> = this
 }
