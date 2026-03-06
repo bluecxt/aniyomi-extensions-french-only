@@ -1,0 +1,16 @@
+ext {
+    extName = 'VoirAnime'
+    extClass = '.VoirAnime'
+    extVersionCode = 1
+}
+
+apply from: "$rootDir/common.gradle"
+
+dependencies {
+    implementation(project(':lib:doodextractor'))
+    implementation(project(':lib:voeextractor'))
+    implementation(project(':lib:sibnetextractor'))
+    implementation(project(':lib:vidmolyextractor'))
+    implementation(project(':lib:okruextractor'))
+    implementation(project(':lib:vkextractor'))
+}
