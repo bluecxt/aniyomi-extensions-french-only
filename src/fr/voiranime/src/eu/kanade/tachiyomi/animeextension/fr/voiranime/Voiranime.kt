@@ -112,31 +112,38 @@ class Voiranime :
         val document = response.asJsoup()
         val videos = mutableListOf<Video>()
 
-        // Default iframe (often in #pembed or .player-embed)
-        document.select("div#pembed iframe, div.player-embed iframe, div.megavid iframe").forEach {
-            val src = it.attr("src")
+        // Default iframes
+        document.select("div#pembed iframe, div.player-embed iframe, div.megavid iframe, .video-content iframe").forEach {
+            val src = it.attr("abs:src").ifEmpty { it.attr("src") }
             if (src.isNotEmpty()) {
                 videos.addAll(extractVideos(src))
             }
         }
 
-        val players = document.select("select#player-option option, select.player-option option, select.mirror option, div.item-mirror select option")
+        val players = document.select("select#player-option option, select.player-option option, select.mirror option, .item-mirror select option")
 
         videos.addAll(
             players.toList().parallelCatchingFlatMapBlocking {
-                val base64 = it.attr("value")
-                if (base64.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
+                val value = it.attr("value")
+                if (value.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 
-                val decoded = try {
-                    android.util.Base64.decode(base64, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
-                } catch (e: Exception) {
-                    // Maybe it's not base64 but direct URL
-                    if (base64.startsWith("http")) return@parallelCatchingFlatMapBlocking extractVideos(base64)
-                    ""
+                val decoded = if (value.startsWith("http")) {
+                    value
+                } else {
+                    try {
+                        android.util.Base64.decode(value, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
+                    } catch (e: Exception) {
+                        ""
+                    }
                 }
 
-                val iframeSrc = Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1)
-                    ?: if (decoded.startsWith("http")) decoded else ""
+                if (decoded.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
+
+                val iframeSrc = if (decoded.startsWith("http")) {
+                    decoded
+                } else {
+                    Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1) ?: ""
+                }
 
                 if (iframeSrc.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 

@@ -6,12 +6,16 @@ import eu.kanade.tachiyomi.animesource.model.AnimeFilter
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
+import eu.kanade.tachiyomi.lib.vidhideextractor.VidHideExtractor
 import eu.kanade.tachiyomi.multisrc.dooplay.DooPlay
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.util.asJsoup
 import okhttp3.Response
 import org.jsoup.nodes.Element
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class JetAnime :
     DooPlay(
@@ -123,6 +127,25 @@ class JetAnime :
             ),
         )
 
+    // ============================== Episodes ==============================
+
+    override fun episodeListSelector() = "ul.episodios > li"
+
+    override fun episodeFromElement(element: Element, seasonName: String): SEpisode = SEpisode.create().apply {
+        val a = element.selectFirst("a")!!
+        setUrlWithoutDomain(a.attr("abs:href"))
+        val epText = element.selectFirst("div.numerando")?.text() ?: ""
+        name = if (seasonName.isNotEmpty()) "$seasonName - ${a.text()}" else a.text()
+        episode_number = epText.substringAfter("-").trim().toFloatOrNull() ?: 0f
+        date_upload = element.selectFirst("span.date")?.text()?.let { parseDate(it) } ?: 0L
+    }
+
+    private fun parseDate(dateStr: String): Long = try {
+        SimpleDateFormat("MMM. dd, yyyy", Locale.ENGLISH).parse(dateStr)?.time ?: 0L
+    } catch (e: Exception) {
+        0L
+    }
+
     // ============================ Video Links =============================
 
     private val noRedirects = client.newBuilder()
@@ -173,6 +196,7 @@ class JetAnime :
     private fun getPlayerVideos(url: String, name: String): List<Video> = when {
         url.contains("https://sentinel") -> SentinelExtractor(client).videoFromUrl(url, name)
         url.contains("https://hdsplay") -> HdsplayExtractor(client).videoFromUrl(url, name)
+        url.contains("secured.lol") || url.contains("vidhide") -> VidHideExtractor(client, headers).videosFromUrl(url)
         else -> emptyList()
     }
 
