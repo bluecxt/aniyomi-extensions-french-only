@@ -40,7 +40,7 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 | **Anime-Sama** | ✅ Opérationnelle | Référence (VF/VOSTFR). |
 | **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
 | **French-Manga** | ✅ Opérationnelle | Source DLE avec API AJAX. |
-| **Stream-VF** | ✅ Opérationnelle | Source avec Sibnet et Doodstream. |
+| **Stream-VF** | ✅ Opérationnelle | Source avec Sibnet (principalement). |
 | **VoirAnime** | ✅ Opérationnelle | Nouvelle source DramaStream. |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
 | **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |

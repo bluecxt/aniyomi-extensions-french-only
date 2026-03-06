@@ -1,15 +1,17 @@
 ext {
     extName = 'Stream-VF'
     extClass = '.StreamVF'
-    extVersionCode = 1
+    extVersionCode = 2
 }
 
 apply from: "$rootDir/common.gradle"
 
 dependencies {
     implementation(project(':lib:sibnetextractor'))
+    implementation(project(':lib:luluextractor'))
     implementation(project(':lib:doodextractor'))
     implementation(project(':lib:voeextractor'))
     implementation(project(':lib:vidmolyextractor'))
     implementation(project(':lib:filemoonextractor'))
+    implementation(project(':lib:cloudflareinterceptor'))
 }

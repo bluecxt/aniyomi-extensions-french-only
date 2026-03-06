@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.animeextension.fr.streamvf
 
+import android.util.Base64
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceScreen
 import eu.kanade.tachiyomi.animesource.ConfigurableAnimeSource
@@ -8,16 +9,20 @@ import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.ParsedAnimeHttpSource
+import eu.kanade.tachiyomi.lib.cloudflareinterceptor.CloudflareInterceptor
 import eu.kanade.tachiyomi.lib.doodextractor.DoodExtractor
 import eu.kanade.tachiyomi.lib.filemoonextractor.FilemoonExtractor
+import eu.kanade.tachiyomi.lib.luluextractor.LuluExtractor
 import eu.kanade.tachiyomi.lib.sibnetextractor.SibnetExtractor
 import eu.kanade.tachiyomi.lib.vidmolyextractor.VidMolyExtractor
 import eu.kanade.tachiyomi.lib.voeextractor.VoeExtractor
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.util.asJsoup
 import keiyoushi.utils.getPreferencesLazy
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
@@ -34,6 +39,15 @@ class StreamVF :
     override val lang = "fr"
 
     override val supportsLatest = true
+
+    override val client: OkHttpClient = network.client.newBuilder()
+        .addInterceptor(CloudflareInterceptor(network.client))
+        .build()
+
+    // Client sans intercepteur pour les redirections simples
+    private val simpleClient = network.client.newBuilder()
+        .followRedirects(true)
+        .build()
 
     private val preferences by getPreferencesLazy()
 
@@ -56,12 +70,7 @@ class StreamVF :
 
     override fun latestUpdatesSelector(): String = "div.manga-item"
 
-    override fun latestUpdatesFromElement(element: Element): SAnime = SAnime.create().apply {
-        val link = element.selectFirst("h3 a")!!
-        setUrlWithoutDomain(link.attr("abs:href"))
-        title = link.text()
-        thumbnail_url = element.selectFirst("img")?.attr("abs:src")
-    }
+    override fun latestUpdatesFromElement(element: Element): SAnime = popularAnimeFromElement(element)
 
     override fun latestUpdatesNextPageSelector(): String = popularAnimeNextPageSelector()
 
@@ -97,10 +106,10 @@ class StreamVF :
         val epNumText = element.selectFirst("em")?.text() ?: "1"
         name = "Épisode $epNumText: ${link.text()}"
         episode_number = epNumText.toFloatOrNull() ?: 0f
-        date_upload = 0L // TODO: Parse date if needed
+        date_upload = 0L
     }
 
-    override fun episodeListParse(response: Response): List<SEpisode> = super.episodeListParse(response).reversed()
+    override fun episodeListParse(response: Response): List<SEpisode> = super.episodeListParse(response)
 
     // ============================ Video Links =============================
     override fun videoListSelector(): String = "iframe"
@@ -115,35 +124,77 @@ class StreamVF :
         val voeExtractor = VoeExtractor(client, headers)
         val vidMolyExtractor = VidMolyExtractor(client, headers)
         val filemoonExtractor = FilemoonExtractor(client)
+        val luluExtractor = LuluExtractor(client, headers)
 
-        document.select("iframe").forEach { iframe ->
-            val url = iframe.attr("abs:src")
-            when {
-                url.contains("sibnet") -> videos.addAll(sibnetExtractor.videosFromUrl(url))
-                url.contains("dood") -> videos.addAll(doodExtractor.videosFromUrl(url))
-                url.contains("voe") -> videos.addAll(voeExtractor.videosFromUrl(url))
-                url.contains("vidmoly") -> videos.addAll(vidMolyExtractor.videosFromUrl(url))
-                url.contains("filemoon") -> videos.addAll(filemoonExtractor.videosFromUrl(url))
-            }
+        val scripts = document.select("script").joinToString { it.data() }
+        val fRegex = Regex("""f\('([^']+)'\)""")
+
+        val allUrls = mutableListOf<String>()
+        document.select("iframe").forEach { allUrls.add(it.attr("abs:src")) }
+
+        fRegex.findAll(scripts).forEach { match ->
+            val encoded = match.groupValues[1]
+            try {
+                val decoded = Base64.decode(encoded, Base64.DEFAULT).toString(Charsets.UTF_8)
+                // On cherche src="URL" dans le texte décodé
+                val srcMatch = Regex("""src=["']([^"']+)["']""").find(decoded)
+                srcMatch?.groupValues?.get(1)?.let { allUrls.add(it) }
+            } catch (e: Exception) {}
         }
 
-        // Check for scripts if iframes are empty
-        if (videos.isEmpty()) {
-            val scriptData = document.select("script").joinToString { it.data() }
-            val urlRegex = Regex("""https?://[^\s'"]+""")
-            urlRegex.findAll(scriptData).forEach { match ->
-                val url = match.value
-                when {
-                    url.contains("sibnet") -> videos.addAll(sibnetExtractor.videosFromUrl(url))
-                    url.contains("dood") -> videos.addAll(doodExtractor.videosFromUrl(url))
-                    url.contains("voe") -> videos.addAll(voeExtractor.videosFromUrl(url))
-                    url.contains("vidmoly") -> videos.addAll(vidMolyExtractor.videosFromUrl(url))
-                    url.contains("filemoon") -> videos.addAll(filemoonExtractor.videosFromUrl(url))
-                }
-            }
+        allUrls.filter { it.isNotBlank() }.distinct().forEach { url ->
+            val resolvedUrl = resolveUrl(url)
+            val extracted = extractVideos(resolvedUrl, sibnetExtractor, doodExtractor, voeExtractor, vidMolyExtractor, filemoonExtractor, luluExtractor, "")
+            videos.addAll(extracted)
         }
 
-        return videos
+        return videos.sortedByDescending { it.quality.contains("Sibnet", ignoreCase = true) }.distinctBy { it.videoUrl }
+    }
+
+    private fun resolveUrl(url: String): String {
+        val absoluteUrl = when {
+            url.startsWith("//") -> "https:$url"
+            !url.startsWith("http") -> "https://$url"
+            else -> url
+        }
+
+        if (absoluteUrl.contains("short.icu")) {
+            return try {
+                // On utilise le simpleClient pour éviter les conflits d'intercepteurs sur les raccourcisseurs
+                val response = simpleClient.newCall(GET(absoluteUrl)).execute()
+                response.request.url.toString()
+            } catch (e: Exception) {
+                absoluteUrl
+            }
+        }
+        return absoluteUrl
+    }
+
+    private fun extractVideos(
+        url: String,
+        sibnet: SibnetExtractor,
+        dood: DoodExtractor,
+        voe: VoeExtractor,
+        vidMoly: VidMolyExtractor,
+        filemoon: FilemoonExtractor,
+        lulu: LuluExtractor,
+        suffix: String,
+    ): List<Video> = when {
+        url.contains("sibnet") -> sibnet.videosFromUrl(url, "Sibnet $suffix - ")
+
+        url.contains("dood") -> dood.videosFromUrl(url, "Dood $suffix - ")
+
+        url.contains("voe") -> voe.videosFromUrl(url, "Voe $suffix - ")
+
+        url.contains("vidmoly") -> vidMoly.videosFromUrl(url, "VidMoly $suffix - ")
+
+        url.contains("filemoon") -> filemoon.videosFromUrl(url, "Filemoon $suffix - ")
+
+        url.contains("lulu") || url.contains("vidnest") || url.contains("vidzy") -> {
+            lulu.videosFromUrl(url, "Lulu/Vidnest $suffix - ")
+        }
+
+        else -> emptyList()
     }
 
     override fun videoFromElement(element: Element): Video = throw UnsupportedOperationException()
