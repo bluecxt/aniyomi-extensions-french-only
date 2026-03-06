@@ -31,34 +31,27 @@ Si la méthode ci-dessus ne fonctionne pas, copiez et collez cette URL (directe)
 https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json
 ```
 
-## ⚠️ État des extensions (Mars 2026)
+## ✅ État des extensions (Mars 2026)
 
-Seules les extensions suivantes sont confirmées comme 100% fonctionnelles. Les autres sont en cours de test ou instables.
+Le dépôt a été épuré pour ne conserver que les sources 100% opérationnelles.
 
 | Extension | État | Note |
 | :--- | :--- | :--- |
 | **Anime-Sama** | ✅ Opérationnelle | Référence (VF/VOSTFR). |
 | **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
-| **WaveAnime** | ✅ Opérationnelle | Source récente fonctionnelle. |
-| **JetAnime** | ❌ Instable | Fix en cours (v18). |
-| **Voiranime** | ❌ Instable | Fix en cours (v5). |
-| **StreamVF** | ❌ Instable | En cours de vérification. |
-| **FrenchManga** | ❌ Instable | En cours de vérification. |
-| **Animoflix** | ❌ Instable | Protections Cloudflare. |
-| **Vostfree** | ❌ Instable | AJAX bloqué. |
-| **FrAnime** | ❌ Instable | API et Encryption. |
+| **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |
 
 ---
 
 ## 🛠️ Extensions disponibles
 
-Ce dépôt regroupe et maintient les sources françaises. Voici les sources recommandées :
+Ce dépôt regroupe et maintient les meilleures sources françaises :
 
-- **Anime-Sama** : Le plus gros catalogue (VF/VOSTFR).
-- **FrenchAnime** : Très stable, idéal pour les classiques.
-- **SouthTV** : Spécialiste South Park et séries animées.
-- **WaveAnime** : Alternative moderne et rapide.
+- **Anime-Sama** : Le plus gros catalogue actuel.
+- **FrenchAnime** : Très stable pour les classiques et nouveautés.
+- **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
+- **WaveAnime** : Alternative rapide et efficace.
 
 Toutes les extensions se trouvent dans le dossier `src/fr/`. Tous les outils d'extraction vidéo (nécessaires si vous voulez ajouter de nouveaux sites) ont été conservés dans le dossier `lib/`.
 
