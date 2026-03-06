@@ -1,0 +1,21 @@
+ext {
+    extName = 'Jetanimes'
+    extClass = '.Jetanimes'
+    baseUrl = 'https://on.jetanimes.com'
+    extVersionCode = 19
+}
+
+apply from: "$rootDir/common.gradle"
+
+dependencies {
+    implementation(project(':lib:doodextractor'))
+    implementation(project(':lib:sibnetextractor'))
+    implementation(project(':lib:voeextractor'))
+    implementation(project(':lib:filemoonextractor'))
+    implementation(project(':lib:sendvidextractor'))
+    implementation(project(':lib:vidmolyextractor'))
+    implementation(project(':lib:upstreamextractor'))
+    implementation(project(':lib:vidoextractor'))
+    implementation(project(':lib:uqloadextractor'))
+    implementation(project(':lib:vudeoextractor'))
+}

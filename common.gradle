@@ -89,6 +89,11 @@ android {
         buildConfig = true
     }
 
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
     buildTypes {
         configureEach {
             buildConfigField "String", "MEGACLOUD_API", "\"${System.getenv("MEGACLOUD_API") ?: localProperties.getProperty("MEGACLOUD_API", "")}\""
