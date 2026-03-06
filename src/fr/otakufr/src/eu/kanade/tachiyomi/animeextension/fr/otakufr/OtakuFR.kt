@@ -35,7 +35,7 @@ class OtakuFR :
 
     override val name = "OtakuFR"
 
-    override val baseUrl = "https://otakufr.cc"
+    override val baseUrl = "https://otakufr.net"
 
     override val lang = "fr"
 

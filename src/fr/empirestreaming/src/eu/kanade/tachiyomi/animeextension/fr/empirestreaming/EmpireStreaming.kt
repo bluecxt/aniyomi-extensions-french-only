@@ -267,7 +267,7 @@ class EmpireStreaming :
 
         private const val PREF_DOMAIN_KEY = "preferred_domain"
         private const val PREF_DOMAIN_TITLE = "Preferred domain (requires app restart)"
-        private const val PREF_DOMAIN_DEFAULT = "https://empire-stream.net"
+        private const val PREF_DOMAIN_DEFAULT = "https://empire-stream.sbs"
         private val PREF_DOMAIN_ENTRIES = arrayOf("https://empire-stream.net", "https://empire-streaming.app")
         private val PREF_DOMAIN_VALUES = PREF_DOMAIN_ENTRIES
 
