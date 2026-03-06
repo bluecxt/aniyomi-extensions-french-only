@@ -34,8 +34,6 @@ class Animoflix :
 
     override val supportsLatest = true
 
-    override val versionId = 2
-
     override val client = network.cloudflareClient
 
     override fun headersBuilder() = super.headersBuilder()
@@ -103,7 +101,7 @@ class Animoflix :
         val seasons = document.select("a.season-card")
 
         return if (seasons.isNotEmpty()) {
-            seasons.parallelCatchingFlatMapBlocking {
+            seasons.toList().parallelCatchingFlatMapBlocking {
                 val seasonUrl = it.absUrl("href")
                 val seasonResponse = client.newCall(GET(seasonUrl, headers)).execute()
                 val seasonDoc = seasonResponse.asJsoup()

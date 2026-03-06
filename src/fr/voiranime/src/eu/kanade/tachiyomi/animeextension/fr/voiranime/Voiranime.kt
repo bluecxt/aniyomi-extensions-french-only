@@ -112,28 +112,32 @@ class Voiranime :
         val document = response.asJsoup()
         val videos = mutableListOf<Video>()
 
-        // Default iframe
-        document.select("div.player-embed iframe").forEach {
+        // Default iframe (often in #pembed or .player-embed)
+        document.select("div#pembed iframe, div.player-embed iframe, div.megavid iframe").forEach {
             val src = it.attr("src")
             if (src.isNotEmpty()) {
                 videos.addAll(extractVideos(src))
             }
         }
 
-        val players = document.select("select#player-option option, div.player-embed option, select.player-option option")
+        val players = document.select("select#player-option option, select.player-option option, select.mirror option")
 
         videos.addAll(
-            players.parallelCatchingFlatMapBlocking {
+            players.toList().parallelCatchingFlatMapBlocking {
                 val base64 = it.attr("value")
                 if (base64.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 
                 val decoded = try {
                     android.util.Base64.decode(base64, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
                 } catch (e: Exception) {
+                    // Maybe it's not base64 but direct URL
+                    if (base64.startsWith("http")) return@parallelCatchingFlatMapBlocking extractVideos(base64)
                     ""
                 }
 
-                val iframeSrc = Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1) ?: ""
+                val iframeSrc = Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1)
+                    ?: if (decoded.startsWith("http")) decoded else ""
+
                 if (iframeSrc.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 
                 extractVideos(iframeSrc)
