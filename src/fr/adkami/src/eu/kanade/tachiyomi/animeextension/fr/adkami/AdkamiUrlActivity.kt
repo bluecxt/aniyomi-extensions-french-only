@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.animeextension.fr.jetanimes
+package eu.kanade.tachiyomi.animeextension.fr.adkami
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import kotlin.system.exitProcess
 
-class JetanimesUrlActivity : Activity() {
+class AdkamiUrlActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val pathSegments = intent.data?.pathSegments
@@ -20,10 +20,10 @@ class JetanimesUrlActivity : Activity() {
             try {
                 startActivity(intent)
             } catch (e: ActivityNotFoundException) {
-                Log.e("JetanimesUrlActivity", e.toString())
+                Log.e("AdkamiUrlActivity", e.toString())
             }
         } else {
-            Log.e("JetanimesUrlActivity", "could not parse global search intent")
+            Log.e("AdkamiUrlActivity", "could not parse global search intent")
         }
 
         finish()
