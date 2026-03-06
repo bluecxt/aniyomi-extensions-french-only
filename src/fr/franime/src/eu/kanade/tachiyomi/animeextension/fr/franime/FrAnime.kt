@@ -17,6 +17,7 @@ import eu.kanade.tachiyomi.lib.vkextractor.VkExtractor
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.await
 import eu.kanade.tachiyomi.util.parallelCatchingFlatMap
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -142,7 +143,13 @@ class FrAnime : AnimeHttpSource() {
             if (!playerUrl.startsWith("http")) return@parallelCatchingFlatMap emptyList()
 
             if (playerUrl.contains("/watch2/")) {
-                return@parallelCatchingFlatMap extractLpayerVideos(playerUrl)
+                try {
+                    return@parallelCatchingFlatMap withTimeout(10000) {
+                        extractLpayerVideos(playerUrl)
+                    }
+                } catch (e: Exception) {
+                    return@parallelCatchingFlatMap emptyList()
+                }
             }
 
             when (playerName) {
