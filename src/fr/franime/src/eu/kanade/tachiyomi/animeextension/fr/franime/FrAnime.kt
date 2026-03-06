@@ -7,11 +7,11 @@ import eu.kanade.tachiyomi.animesource.model.SAnime
 import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Video
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
+import eu.kanade.tachiyomi.lib.cryptoaes.CryptoAES
 import eu.kanade.tachiyomi.lib.filemoonextractor.FilemoonExtractor
 import eu.kanade.tachiyomi.lib.sendvidextractor.SendvidExtractor
 import eu.kanade.tachiyomi.lib.sibnetextractor.SibnetExtractor
 import eu.kanade.tachiyomi.lib.vidmolyextractor.VidMolyExtractor
-import eu.kanade.tachiyomi.lib.cryptoaes.CryptoAES
 import eu.kanade.tachiyomi.lib.vidoextractor.VidoExtractor
 import eu.kanade.tachiyomi.lib.vkextractor.VkExtractor
 import eu.kanade.tachiyomi.network.GET
@@ -227,9 +227,7 @@ class FrAnime : AnimeHttpSource() {
         }
     }
 
-    private fun getLpayerKey(): ByteArray {
-        return "6b69656d7269656e6d75613931316361".decodeHex()
-    }
+    private fun getLpayerKey(): ByteArray = "6b69656d7269656e6d75613931316361".decodeHex()
 
     private fun getLpayerIv(hash: String): ByteArray {
         // This is a simplified version, ideally we should replicate the full JS logic for any hash.
