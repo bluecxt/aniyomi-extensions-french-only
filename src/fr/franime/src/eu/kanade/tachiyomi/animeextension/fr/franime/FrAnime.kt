@@ -154,11 +154,17 @@ class FrAnime : AnimeHttpSource() {
 
             when (playerName) {
                 "sendvid" -> sendvidExtractor.videosFromUrl(playerUrl)
+
                 "sibnet" -> sibnetExtractor.videosFromUrl(playerUrl)
+
                 "vk" -> vkExtractor.videosFromUrl(playerUrl)
+
                 "vidmoly" -> vidMolyExtractor.videosFromUrl(playerUrl)
+
                 "filemoon" -> filemoonExtractor.videosFromUrl(playerUrl)
+
                 "vido" -> vidoExtractor.videosFromUrl(playerUrl)
+
                 "dingtezuni" -> {
                     if (playerUrl.contains("/watch2/")) {
                         extractLpayerVideos(playerUrl)
@@ -166,6 +172,7 @@ class FrAnime : AnimeHttpSource() {
                         emptyList()
                     }
                 }
+
                 else -> {
                     if (playerUrl.contains("lpayer")) {
                         extractLpayerVideos(playerUrl)
