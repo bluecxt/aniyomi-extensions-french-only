@@ -9,13 +9,19 @@ import java.util.regex.Pattern
 
 class FrenchMangaExtractor(private val client: OkHttpClient) {
 
+    private val defaultua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+
     fun videosFromUrl(url: String, prefix: String): List<Video> {
         val videos = mutableListOf<Video>()
 
-        // On utilise l'URL elle-même comme Referer pour le serveur de stockage
+        val uri = url.toHttpUrl()
+        val referer = "${uri.scheme}://${uri.host}/"
+
         val headers = Headers.Builder()
-            .add("Referer", url)
-            .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            .add("Referer", url) // L'URL de l'embed est souvent requise comme Referer
+            .add("Origin", referer.removeSuffix("/"))
+            .add("User-Agent", defaultua)
+            .add("Accept", "*/*")
             .build()
 
         try {
@@ -23,11 +29,11 @@ class FrenchMangaExtractor(private val client: OkHttpClient) {
             if (response.code == 403) return emptyList()
 
             val html = response.use { it.body.string() }
-            val m3u8Url = extractM3u8Url(html) ?: return emptyList()
-            val fixedUrl = fixM3u8Link(m3u8Url)
+            val videoUrl = extractVideoUrl(html) ?: return emptyList()
+            val fixedUrl = fixVideoLink(videoUrl)
 
             val resolution = getResolution(fixedUrl, headers)
-            // On passe les headers complets à l'objet Video pour que le lecteur les utilise aussi
+            // On transmet ces headers à l'objet Video pour qu'Anikku et 1DM les utilisent
             videos.add(Video(fixedUrl, "$prefix ($resolution)", fixedUrl, headers))
         } catch (e: Exception) {
             e.printStackTrace()
@@ -36,7 +42,7 @@ class FrenchMangaExtractor(private val client: OkHttpClient) {
         return videos
     }
 
-    private fun extractM3u8Url(html: String): String? {
+    private fun extractVideoUrl(html: String): String? {
         return when {
             html.contains("eval(function(p,a,c,k,e") -> {
                 val unpacked = JavaScriptUnpacker.unpack(html) ?: return null
@@ -47,66 +53,44 @@ class FrenchMangaExtractor(private val client: OkHttpClient) {
             }
 
             else -> {
-                Pattern.compile("sources: \\[\\{file:\"(https?://[^\"]+)\"")
+                Pattern.compile("sources: \\s*\\[\\{file:\"(https?://[^\"]+)\"")
                     .matcher(html)
                     .takeIf { it.find() }
                     ?.group(1)
+                    ?: Pattern.compile("file:\"(https?://[^\"]+)\"")
+                        .matcher(html)
+                        .takeIf { it.find() }
+                        ?.group(1)
             }
         }
     }
 
-    private fun fixM3u8Link(link: String): String {
-        if (!link.contains("?")) return link
-        val paramOrder = listOf("t", "s", "e", "f")
-        val params = Pattern.compile("[?&]([^=]*)=([^&]*)").matcher(link).let { matcher ->
-            generateSequence { if (matcher.find()) matcher.group(1) to matcher.group(2) else null }.toList()
-        }
-
-        val paramDict = mutableMapOf<String, String>()
-        val extraParams = mutableMapOf<String, String>()
-
-        params.forEachIndexed { index, (key, value) ->
-            if (key.isNullOrEmpty()) {
-                if (index < paramOrder.size) {
-                    if (value != null) {
-                        paramDict[paramOrder[index]] = value
-                    }
-                }
-            } else {
-                if (value != null) {
-                    extraParams[key] = value
-                }
-            }
-        }
-
-        extraParams["i"] = "0.3"
-        extraParams["sp"] = "0"
-
-        val baseUrl = link.split("?")[0]
-
-        val fixedLink = baseUrl.toHttpUrl().newBuilder()
-        paramOrder.filter { paramDict.containsKey(it) }.forEach { key ->
-            fixedLink.addQueryParameter(key, paramDict[key])
-        }
-        extraParams.forEach { (key, value) ->
-            fixedLink.addQueryParameter(key, value)
-        }
-
-        return fixedLink.build().toString()
-    }
-
-    private fun getResolution(m3u8Url: String, headers: Headers): String = try {
-        val content = client.newCall(GET(m3u8Url, headers)).execute()
-            .use { it.body.string() }
-
-        Pattern.compile("RESOLUTION=\\d+x(\\d+)")
-            .matcher(content)
-            .takeIf { it.find() }
-            ?.group(1)
-            ?.let { "${it}p" }
-            ?: "SD"
+    private fun fixVideoLink(link: String): String = try {
+        val uri = link.toHttpUrl()
+        val builder = uri.newBuilder()
+        // On ajoute uniquement si absent, sans supprimer les autres (comme kmnr)
+        if (uri.queryParameter("i").isNullOrEmpty()) builder.setQueryParameter("i", "0.3")
+        if (uri.queryParameter("sp").isNullOrEmpty()) builder.setQueryParameter("sp", "0")
+        builder.build().toString()
     } catch (e: Exception) {
-        "SD"
+        link
+    }
+
+    private fun getResolution(videoUrl: String, headers: Headers): String {
+        if (videoUrl.contains(".mp4")) return "720p" // Defaut pour mp4 direct
+        return try {
+            val content = client.newCall(GET(videoUrl, headers)).execute()
+                .use { it.body.string() }
+
+            Pattern.compile("RESOLUTION=\\d+x(\\d+)")
+                .matcher(content)
+                .takeIf { it.find() }
+                ?.group(1)
+                ?.let { "${it}p" }
+                ?: "HD"
+        } catch (e: Exception) {
+            "HD"
+        }
     }
 }
 
