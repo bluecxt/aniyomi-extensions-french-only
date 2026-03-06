@@ -204,20 +204,20 @@ class FrAnime : AnimeHttpSource() {
             val key = getLpayerKey()
             val iv = getLpayerIv(o)
 
-            val decodedA = android.util.Base64.decode(a, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
-            val encryptedBytesA = decodedA.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-
-            val decryptedA = CryptoAES.decryptAES(encryptedBytesA, key, iv)
-            val videoDataJson = decryptedA.toString(Charsets.UTF_8)
+            // decryptedA is a JSON string
+            val videoDataJson = CryptoAES.decrypt(a, key, iv)
             val videoData = json.decodeFromString<JsonObject>(videoDataJson)
 
             val videoId = videoData["id"]?.jsonPrimitive?.content ?: return emptyList()
             val videoApiUrl = "https://lpayer.embed4me.com/api/v1/video?id=$videoId"
 
             val videoApiResponse = client.newCall(GET(videoApiUrl, headers)).await().body.string()
-            val encryptedBytesVideo = videoApiResponse.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-            val decryptedVideo = CryptoAES.decryptAES(encryptedBytesVideo, key, iv)
-            val finalVideoDataJson = decryptedVideo.toString(Charsets.UTF_8)
+            // The video API also returns a hex string that needs to be base64 encoded for CryptoAES.decrypt
+            val videoApiBase64 = android.util.Base64.encodeToString(
+                videoApiResponse.chunked(2).map { it.toInt(16).toByte() }.toByteArray(),
+                android.util.Base64.DEFAULT,
+            )
+            val finalVideoDataJson = CryptoAES.decrypt(videoApiBase64, key, iv)
             val finalVideoData = json.decodeFromString<JsonObject>(finalVideoDataJson)
 
             val m3u8Url = finalVideoData["httpStream"]?.jsonPrimitive?.content ?: return emptyList()
