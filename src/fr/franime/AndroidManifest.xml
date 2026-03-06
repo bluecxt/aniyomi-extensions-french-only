@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="eu.kanade.tachiyomi.animeextension.nsfw"
+            android:value="1" />
         <activity
-            android:name=".fr.streamvf.StreamVFUrlActivity"
+            android:name=".fr.franime.FrAnimeUrlActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@android:style/Theme.NoDisplay">
@@ -13,11 +16,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="www.stream-vf.top"
-                    android:pathPattern="/anime/..*"
-                    android:scheme="https" />
-                <data
-                    android:host="stream-vf.top"
+                    android:host="franime.fr"
                     android:pathPattern="/anime/..*"
                     android:scheme="https" />
             </intent-filter>

@@ -38,11 +38,12 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 | Extension | État | Note |
 | :--- | :--- | :--- |
 | **Anime-Sama** | ✅ Opérationnelle | Référence (VF/VOSTFR). |
+| **ADKami** | ✅ Opérationnelle | Source riche (inclut Hentai/NSFW). |
 | **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
 | **French-Manga** | ✅ Opérationnelle | Source DLE avec API AJAX. |
+| **FrAnime** | 🚧 En cours | Catalogue et épisodes OK (Lecteurs à venir). |
 | **Stream-VF** | ✅ Opérationnelle | Source avec Sibnet (principalement). |
 | **VoirAnime** | ✅ Opérationnelle | Nouvelle source DramaStream. |
-| **Vostfree** | ✅ Opérationnelle | Source historique (VF/VOSTFR). |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
 | **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |
 
@@ -53,11 +54,12 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 Ce dépôt regroupe et maintient les meilleures sources françaises :
 
 - **Anime-Sama** : Le plus gros catalogue actuel.
+- **ADKami** : Très complet, inclut également du contenu adulte.
 - **FrenchAnime** : Très stable pour les classiques et nouveautés.
 - **French-Manga** : Catalogue varié et mise à jour rapide.
+- **FrAnime** : Interface moderne, en cours de développement.
 - **Stream-VF** : Spécialisé VF avec de bons lecteurs.
 - **VoirAnime** : Source riche en VF/VOSTFR.
-- **Vostfree** : Une référence incontournable (VF et VOSTFR).
 - **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
 - **WaveAnime** : Alternative rapide et efficace.
 
