@@ -19,8 +19,8 @@ class VidMolyExtractor(private val client: OkHttpClient, headers: Headers = comm
         .set("Referer", "$baseUrl/")
         .build()
 
-    private val sourcesRegex = Regex("sources: (.*?]),")
-    private val urlsRegex = Regex("""file:"(.*?)"""")
+    private val sourcesRegex = Regex("sources:\\s*(\\[.*?])")
+    private val urlsRegex = Regex("""file:\s*["'](.*?)["']""")
 
     fun videosFromUrl(url: String, prefix: String = ""): List<Video> {
         val document = client.newCall(

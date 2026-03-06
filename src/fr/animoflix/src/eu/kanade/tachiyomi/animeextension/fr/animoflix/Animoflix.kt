@@ -34,23 +34,26 @@ class Animoflix :
 
     override val supportsLatest = true
 
+    override val versionId = 2
+
     private val preferences by getPreferencesLazy()
 
     // ============================== Popular ===============================
-    override fun popularAnimeSelector() = "a.anime-card"
+    override fun popularAnimeSelector() = "div.anime-card-pro"
 
     override fun popularAnimeRequest(page: Int) = GET("$baseUrl/catalogue/")
 
     override fun popularAnimeFromElement(element: Element) = SAnime.create().apply {
-        setUrlWithoutDomain(element.attr("href"))
-        title = element.selectFirst("h3")?.text() ?: ""
-        thumbnail_url = element.selectFirst("img")?.absUrl("src")
+        val link = element.selectFirst("a")!!
+        setUrlWithoutDomain(link.attr("href"))
+        title = element.selectFirst("h2.card-title-pro")?.text() ?: ""
+        thumbnail_url = element.selectFirst("img.card-image-pro")?.absUrl("src")
     }
 
     override fun popularAnimeNextPageSelector(): String? = null
 
     // =============================== Latest ===============================
-    override fun latestUpdatesSelector() = "a.anime-card"
+    override fun latestUpdatesSelector() = "div.anime-card-pro"
 
     override fun latestUpdatesRequest(page: Int) = GET(baseUrl)
 
@@ -59,7 +62,7 @@ class Animoflix :
     override fun latestUpdatesNextPageSelector(): String? = null
 
     // =============================== Search ===============================
-    override fun searchAnimeSelector() = "a.anime-card"
+    override fun searchAnimeSelector() = "div.anime-card-pro"
 
     override fun searchAnimeRequest(page: Int, query: String, filters: AnimeFilterList): Request = if (query.isNotEmpty()) {
         GET("$baseUrl/catalogue/?search=$query")
@@ -76,7 +79,7 @@ class Animoflix :
         title = document.selectFirst("h1.anime-title")?.text() ?: ""
         description = document.selectFirst("div.anime-description p")?.text()
         genre = document.select("div.anime-genres p").text()
-        status = parseStatus(document.selectFirst("p.anime-status")?.text())
+        status = parseStatus(document.selectFirst("div.status-badge")?.text())
     }
 
     private fun parseStatus(status: String?): Int = when {
@@ -89,32 +92,30 @@ class Animoflix :
     // ============================== Episodes ==============================
     override fun episodeListParse(response: Response): List<SEpisode> {
         val document = response.asJsoup()
-        val episodes = mutableListOf<SEpisode>()
+        val seasons = document.select("a.season-card")
 
-        // Animoflix lists seasons on the anime page.
-        // We need to fetch each season page to get episodes?
-        // Or are they all on the main page?
-        // In my check, I saw /anime/sentenced-to-be-a-hero/saison-1/
-
-        val seasons = document.select("a[href*='/saison-']")
-        if (seasons.isEmpty()) {
-            // Check if it's a single season or movie
-            // ...
+        return if (seasons.isNotEmpty()) {
+            seasons.parallelCatchingFlatMapBlocking {
+                val seasonUrl = it.absUrl("href")
+                val seasonResponse = client.newCall(GET(seasonUrl, headers)).execute()
+                val seasonDoc = seasonResponse.asJsoup()
+                parseEpisodesFromSeason(seasonDoc)
+            }.distinctBy { it.url }.sortedByDescending { it.episode_number }
+        } else {
+            // Fallback for movies or single season without card
+            parseEpisodesFromSeason(document)
         }
+    }
 
-        // For now, let's assume we are on the anime page and we need to fetch episodes from all seasons.
-        // This is tricky for ParsedAnimeHttpSource.
-        // Let's simplify and just get episodes if they are listed.
-
-        // Actually, let's check the season page content again.
-        return document.select("a[href*='/episode-']").map {
-            SEpisode.create().apply {
-                val url = it.attr("href")
-                setUrlWithoutDomain(url)
-                name = it.text().ifEmpty { url.substringAfterLast("/").replace("-", " ").capitalize() }
-                episode_number = url.substringAfter("episode-").substringBefore("/").toFloatOrNull() ?: 0f
-            }
-        }.reversed()
+    private fun parseEpisodesFromSeason(document: Document): List<SEpisode> = document.select("a.episode-card").map {
+        SEpisode.create().apply {
+            val url = it.attr("href")
+            val lang = it.selectFirst("div.hover-content span")?.text() ?: ""
+            setUrlWithoutDomain(url)
+            val epTitle = it.selectFirst("h3.episode-title")?.text() ?: ""
+            name = if (lang.isNotEmpty()) "$epTitle ($lang)" else epTitle
+            episode_number = epTitle.substringAfter("Épisode ").toFloatOrNull() ?: 0f
+        }
     }
 
     override fun episodeListSelector() = throw UnsupportedOperationException()
@@ -129,7 +130,7 @@ class Animoflix :
     override fun videoListParse(response: Response): List<Video> {
         val document = response.asJsoup()
 
-        val players = document.select("select.player-controls option")
+        val players = document.select("select#lecteurSelect option")
 
         return players.parallelCatchingFlatMapBlocking {
             val iframeSrc = it.attr("value")

@@ -111,17 +111,19 @@ class Voiranime :
     override fun videoListParse(response: Response): List<Video> {
         val document = response.asJsoup()
 
-        val players = document.select("select#player-option option, div.player-embed option")
+        val players = document.select("select#player-option option, div.player-embed option, select.player-option option")
 
         return players.parallelCatchingFlatMapBlocking {
             val base64 = it.attr("value")
+            if (base64.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
+
             val decoded = try {
-                android.util.Base64.decode(base64, android.util.Base64.DEFAULT).toString(Charsets.UTF_8)
+                java.util.Base64.getDecoder().decode(base64).toString(Charsets.UTF_8)
             } catch (e: Exception) {
                 ""
             }
 
-            val iframeSrc = Regex("""src="([^"]+)"""").find(decoded)?.groupValues?.get(1) ?: ""
+            val iframeSrc = Regex("""src=["']([^"']+)["']""").find(decoded)?.groupValues?.get(1) ?: ""
             if (iframeSrc.isEmpty()) return@parallelCatchingFlatMapBlocking emptyList<Video>()
 
             when {
