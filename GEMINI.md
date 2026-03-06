@@ -82,6 +82,12 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action :** Mise à jour de `move-built-apks.py` pour détecter et supprimer les APKs dont le code source a été retiré de `src/`.
 - **Objectif :** Éviter que des extensions supprimées (comme `otakufr` ou `voircartoon`) ne restent indéfiniment dans la liste des extensions disponibles sur Anikku/Aniyomi.
 
+### 16. Ajout de nouvelles extensions (StreamVF, FrenchManga)
+- **Action 16.1 :** Création de l'extension `StreamVF` (stream-vf.top) avec support des lecteurs Streamwish, Sibnet, Voe, etc.
+- **Action 16.2 :** Création de l'extension `FrenchManga` (french-manga.net) basée sur `datalifeengine`.
+- **Action 16.3 :** Ajout de ces extensions dans `always_build.json`.
+- **Objectif :** Remplacer les sources obsolètes par des sites actifs en 2026.
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`
