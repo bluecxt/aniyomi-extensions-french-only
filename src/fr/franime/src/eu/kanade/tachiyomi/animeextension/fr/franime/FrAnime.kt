@@ -159,7 +159,20 @@ class FrAnime : AnimeHttpSource() {
                 "vidmoly" -> vidMolyExtractor.videosFromUrl(playerUrl)
                 "filemoon" -> filemoonExtractor.videosFromUrl(playerUrl)
                 "vido" -> vidoExtractor.videosFromUrl(playerUrl)
-                else -> emptyList()
+                "dingtezuni" -> {
+                    if (playerUrl.contains("/watch2/")) {
+                        extractLpayerVideos(playerUrl)
+                    } else {
+                        emptyList()
+                    }
+                }
+                else -> {
+                    if (playerUrl.contains("lpayer")) {
+                        extractLpayerVideos(playerUrl)
+                    } else {
+                        emptyList()
+                    }
+                }
             }
         }
         return videos
