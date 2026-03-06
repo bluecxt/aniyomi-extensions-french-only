@@ -1,0 +1,17 @@
+ext {
+    extName = 'Voiranime'
+    extClass = '.Voiranime'
+    extVersionCode = 1
+    isNsfw = false
+}
+
+apply from: "$rootDir/common.gradle"
+
+dependencies {
+    implementation(project(':lib:vidmolyextractor'))
+    implementation(project(':lib:sibnetextractor'))
+    implementation(project(':lib:sendvidextractor'))
+    implementation(project(':lib:doodextractor'))
+    implementation(project(':lib:filemoonextractor'))
+    implementation(project(':lib:voeextractor'))
+}

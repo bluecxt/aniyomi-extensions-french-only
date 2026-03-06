@@ -68,6 +68,12 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action 12.3 :** Correction de l'extension `SouthTV` (v4) : résolution du crash d'index et mise à jour du domaine vidéo vers `southtv.fr`.
 - **Objectif :** Maintenir la fonctionnalité globale du dépôt.
 
+### 13. Ajout de nouvelles extensions (Voiranime, Animoflix)
+- **Action 13.1 :** Création de l'extension `Voiranime` (voiranime.io) avec support des lecteurs Vidmoly, Sibnet, Sendvid, etc.
+- **Action 13.2 :** Création de l'extension `Animoflix` (animoflix.com) avec support des lecteurs Sibnet, Sendvid, Doodstream et Filemoon.
+- **Action 13.3 :** Ajout de ces extensions dans `always_build.json` pour un build automatique.
+- **Objectif :** Étendre le catalogue d'extensions francophones.
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`
