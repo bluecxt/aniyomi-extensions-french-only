@@ -255,4 +255,4 @@ class FrAnime : AnimeHttpSource() {
         }
     }
 }
-// Force build update for Franime
+// Force build update for Franime v27
