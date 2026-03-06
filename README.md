@@ -39,6 +39,7 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 | :--- | :--- | :--- |
 | **Anime-Sama** | ✅ Opérationnelle | Référence (VF/VOSTFR). |
 | **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
+| **French-Manga** | ✅ Opérationnelle | Source DLE avec API AJAX. |
 | **VoirAnime** | ✅ Opérationnelle | Nouvelle source DramaStream. |
 | **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
 | **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |
@@ -51,6 +52,7 @@ Ce dépôt regroupe et maintient les meilleures sources françaises :
 
 - **Anime-Sama** : Le plus gros catalogue actuel.
 - **FrenchAnime** : Très stable pour les classiques et nouveautés.
+- **French-Manga** : Catalogue varié et mise à jour rapide.
 - **VoirAnime** : Source riche en VF/VOSTFR.
 - **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
 - **WaveAnime** : Alternative rapide et efficace.
