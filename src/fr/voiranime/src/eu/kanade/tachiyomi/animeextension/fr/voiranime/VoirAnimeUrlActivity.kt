@@ -8,7 +8,7 @@ import android.util.Log
 import kotlin.system.exitProcess
 
 /**
- * Springboard that accepts https://v6.voiranime.com/anime/<item> intents
+ * Springboard that accepts https://voiranime.io/anime/<item> intents
  * and redirects them to the main Aniyomi process.
  */
 class VoirAnimeUrlActivity : Activity() {

@@ -204,6 +204,6 @@ class VoirAnime :
     companion object {
         const val PREFIX_SEARCH = "id:"
         private const val PREF_URL_KEY = "preferred_baseUrl"
-        private const val PREF_URL_DEFAULT = "https://v6.voiranime.com"
+        private const val PREF_URL_DEFAULT = "https://voiranime.io"
     }
 }

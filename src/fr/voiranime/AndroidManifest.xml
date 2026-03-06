@@ -13,11 +13,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="v6.voiranime.com"
+                    android:host="voiranime.io"
                     android:pathPattern="/anime/..*"
                     android:scheme="https" />
                 <data
-                    android:host="voiranime.io"
+                    android:host="v6.voiranime.com"
                     android:pathPattern="/anime/..*"
                     android:scheme="https" />
             </intent-filter>
