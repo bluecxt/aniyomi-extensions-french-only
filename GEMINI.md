@@ -74,9 +74,9 @@ Ce fichier trace l'historique de toutes les modifications effectuées sur ce for
 - **Action 13.3 :** Ajout de ces extensions dans `always_build.json` pour un build automatique.
 - **Objectif :** Étendre le catalogue d'extensions francophones.
 
-### 14. Nettoyage des extensions obsolètes (OtakuFR, VoirCartoon)
-- **Action :** Suppression définitive des extensions `OtakuFR` et `VoirCartoon`.
-- **Objectif :** Retirer les sources dont les sites web n'existent plus.
+### 14. Nettoyage des extensions obsolètes (OtakuFR, VoirCartoon, EmpireStreaming)
+- **Action :** Suppression définitive des extensions `OtakuFR`, `VoirCartoon` et `EmpireStreaming`.
+- **Objectif :** Retirer les sources dont les sites n'existent plus ou ne correspondent pas au but du dépôt (uniquement des animes).
 
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
