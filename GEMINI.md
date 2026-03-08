@@ -93,6 +93,12 @@ En cas d'échec (❌ FAIL), vous devez :
 
 ---
 
+## 📝 Conventions de Commit
+
+Il est **strictement interdit** d'utiliser des emojis dans les messages de commit. Les messages doivent être sobres, en français ou en anglais, et commencer par un préfixe suivi du changement (ex: `Cleanup: ...`, `Fix: ...`, `Feat: ...`).
+
+---
+
 ## 🛠️ Maintenance et Contributions
 - **Ajouter un site** : Créer un nouveau dossier dans `src/fr` et s'inspirer d'une extension existante.
 - **Réparer un lecteur** : Modifier l'extracteur correspondant dans `lib/`.

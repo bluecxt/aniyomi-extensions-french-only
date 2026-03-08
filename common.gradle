@@ -119,9 +119,6 @@ dependencies {
     if (theme != null) implementation(theme) // Overrides core launcher icons
     implementation(project(":core"))
     compileOnly(libs.bundles.common)
-    
-    testImplementation("junit:junit:4.13.2")
-    testImplementation(libs.bundles.common)
 }
 
 tasks.register("copyManifestFile", Copy) {
