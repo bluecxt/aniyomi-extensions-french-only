@@ -31,6 +31,33 @@ Si la méthode ci-dessus ne fonctionne pas, copiez et collez cette URL (directe)
 https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json
 ```
 
+## 🛠️ Développement Local et Tests
+
+Ce dépôt inclut des outils pour tester les extensions sans avoir besoin d'un appareil Android.
+
+### 🧪 Simulateurs (Recommandé)
+Chaque extension dispose d'un script `simulator.py` qui imite le comportement d'Anikku pour vérifier si le site source est toujours fonctionnel.
+
+**Lancer tous les tests :**
+```bash
+for sim in src/fr/*/simulator.py; do python3 "$sim"; done
+```
+
+**Tester une extension spécifique :**
+```bash
+python3 src/fr/animesama/simulator.py
+# OU via le simulateur universel
+python3 anikku_simulator.py animesama
+```
+
+### 🔨 Compilation des APKs
+Pour compiler une extension spécifique :
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk # Si nécessaire
+./gradlew :src:fr:animesama:assembleDebug
+```
+L'APK sera généré dans `src/fr/animesama/build/outputs/apk/debug/`.
+
 ## ✅ État des extensions (Mars 2026)
 
 Le dépôt a été épuré pour ne conserver que les sources 100% opérationnelles.
