@@ -83,7 +83,7 @@ L'URL du dépôt à ajouter dans Anikku ou Aniyomi est :
 Avant de proposer ou de valider tout changement (Commit/PR), il est **obligatoire** de lancer la suite de tests de simulation pour s'assurer qu'aucune source n'est brisée par les modifications (URL, sélecteurs, API) :
 
 ```bash
-python3 check_all_simulators.py
+python3 audit_extensions.py
 ```
 
 En cas d'échec (❌ FAIL), vous devez :

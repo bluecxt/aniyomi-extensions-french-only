@@ -40,7 +40,7 @@ Chaque extension dispose d'un script `simulator.py` qui imite le comportement d'
 
 **Lancer tous les tests (Orchestrateur) :**
 ```bash
-python3 check_all_simulators.py
+python3 audit_extensions.py
 ```
 
 **Tester une extension spécifique :**

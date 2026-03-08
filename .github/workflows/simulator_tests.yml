@@ -25,4 +25,4 @@ jobs:
         run: pip install requests beautifulsoup4
 
       - name: Run Orchestrator
-        run: python3 check_all_simulators.py
+        run: python3 audit_extensions.py
