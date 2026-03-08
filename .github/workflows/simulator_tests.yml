@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ master ]
   schedule:
-    - cron: '0 0 * * 0' # Test automatique tous les dimanches à minuit
-  workflow_dispatch: # Permet de lancer manuellement
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
   audit:
@@ -26,12 +26,32 @@ jobs:
 
       - name: Execute Simulators
         run: |
+          SUMMARY=""
           EXIT_CODE=0
+          
+          echo "🚀 Démarrage de l'audit des extensions..."
+          
           for sim in src/fr/*/simulator.py; do
             if [ -f "$sim" ]; then
+              EXT_NAME=$(basename $(dirname "$sim"))
               echo "--------------------------------------------------"
-              echo "🚀 Executing $sim"
-              python3 "$sim" || EXIT_CODE=1
+              echo "🔎 Test de $EXT_NAME..."
+              
+              if python3 "$sim"; then
+                SUMMARY="$SUMMARY\n| $EXT_NAME | ✅ PASS |"
+              else
+                SUMMARY="$SUMMARY\n| $EXT_NAME | ❌ FAIL |"
+                EXIT_CODE=1
+              fi
             fi
           done
+          
+          echo -e "\n\n=================================================="
+          echo -e "📊 RÉSUMÉ DE L'AUDIT"
+          echo -e "=================================================="
+          echo -e "| Extension | Statut |"
+          echo -e "| :--- | :--- |"
+          echo -e "$SUMMARY"
+          echo -e "=================================================="
+          
           exit $EXIT_CODE
