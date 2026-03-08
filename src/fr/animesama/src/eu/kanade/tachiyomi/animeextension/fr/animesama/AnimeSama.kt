@@ -278,7 +278,7 @@ class AnimeSama :
 
         private const val PREF_URL_KEY = "base_url_pref"
         private const val PREF_URL_TITLE = "URL de base"
-        private const val PREF_URL_DEFAULT = "https://anime-sama.si"
+        private const val PREF_URL_DEFAULT = "https://anime-sama.to"
         private const val PREF_URL_SUMMARY = "Pour changer le domaine de l'extension. Voir https://anime-sama.pw"
 
         private val voicesMap = mapOf(
