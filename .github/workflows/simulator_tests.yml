@@ -1,0 +1,37 @@
+name: Extension Simulators Audit
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 0 * * 0' # Test automatique tous les dimanches à minuit
+  workflow_dispatch: # Permet de lancer manuellement
+
+jobs:
+  audit:
+    name: Run Simulators
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Execute Simulators
+        run: |
+          EXIT_CODE=0
+          for sim in src/fr/*/simulator.py; do
+            if [ -f "$sim" ]; then
+              echo "--------------------------------------------------"
+              echo "🚀 Executing $sim"
+              python3 "$sim" || EXIT_CODE=1
+            fi
+          done
+          exit $EXIT_CODE

@@ -10,4 +10,9 @@ dependencies {
     implementation(project(':lib:sibnetextractor'))
     implementation(project(':lib:vkextractor'))
     implementation(project(':lib:sendvidextractor'))
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jsoup:jsoup:1.15.3")
+    testImplementation("com.squareup.okhttp3:okhttp:4.10.0")
+    testImplementation("com.github.komikku-app:aniyomi-extensions-lib:F078000101")
 }
