@@ -31,29 +31,21 @@ jobs:
           
           echo "🚀 Démarrage de l'audit des extensions..."
           
-          # Liste des extensions à tester
-          EXTENSIONS=$(ls src/fr)
-          
-          for EXT_NAME in $EXTENSIONS; do
+          for EXT_NAME in $(ls src/fr); do
             SIM_PATH="src/fr/$EXT_NAME/simulator.py"
             echo "--------------------------------------------------"
             echo "🔎 Test de $EXT_NAME..."
             
-            # Si un simulateur spécifique existe, on l'utilise, sinon on utilise l'universel
+            CMD="python3 anikku_simulator.py $EXT_NAME"
             if [ -f "$SIM_PATH" ]; then
-              if python3 "$SIM_PATH"; then
-                SUMMARY="${SUMMARY}\n| $EXT_NAME | ✅ PASS |"
-              else
-                SUMMARY="${SUMMARY}\n| $EXT_NAME | ❌ FAIL |"
-                EXIT_CODE=1
-              fi
+              CMD="python3 $SIM_PATH"
+            fi
+            
+            if $CMD; then
+              SUMMARY="${SUMMARY}| $EXT_NAME | ✅ PASS |\n"
             else
-              if python3 anikku_simulator.py "$EXT_NAME"; then
-                SUMMARY="${SUMMARY}\n| $EXT_NAME | ✅ PASS |"
-              else
-                SUMMARY="${SUMMARY}\n| $EXT_NAME | ❌ FAIL |"
-                EXIT_CODE=1
-              fi
+              SUMMARY="${SUMMARY}| $EXT_NAME | ❌ FAIL |\n"
+              EXIT_CODE=1
             fi
           done
           
@@ -65,6 +57,4 @@ jobs:
           echo -e "$SUMMARY"
           echo -e "=================================================="
           
-          # On ne fait pas échouer tout le workflow pour l'instant (optionnel)
-          # exit $EXIT_CODE
-          exit 0
+          exit $EXIT_CODE
