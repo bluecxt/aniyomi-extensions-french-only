@@ -60,17 +60,17 @@ L'APK sera généré dans `src/fr/animesama/build/outputs/apk/debug/`.
 
 Le dépôt a été épuré pour ne conserver que les sources 100% opérationnelles.
 
-| Extension | État | Note |
-| :--- | :--- | :--- |
-| **Anime-Sama** | ✅ Opérationnelle | Référence (VF/VOSTFR). |
-| **ADKami** | ✅ Opérationnelle | Source riche (inclut Hentai/NSFW). |
-| **FrenchAnime** | ✅ Opérationnelle | Catalogue historique stable. |
-| **French-Manga** | ✅ Opérationnelle | Source DLE avec API AJAX. |
-| **FrAnime** | 🚧 En cours | Catalogue et épisodes OK (Lecteurs à venir). |
-| **Stream-VF** | ✅ Opérationnelle | Source avec Sibnet (principalement). |
-| **VoirAnime** | ✅ Opérationnelle | Nouvelle source DramaStream. |
-| **SouthTV** | ✅ Opérationnelle | Animation US et Séries. |
-| **WaveAnime** | ✅ Opérationnelle | Source moderne fonctionnelle. |
+| Extension | État |
+| :--- | :--- |
+| **Anime-Sama** | ✅ Opérationnelle |
+| **ADKami** | ✅ Opérationnelle |
+| **FrenchAnime** | ✅ Opérationnelle |
+| **French-Manga** | ✅ Opérationnelle |
+| **FrAnime** | 🚧 En cours |
+| **Stream-VF** | ✅ Opérationnelle |
+| **VoirAnime** | ✅ Opérationnelle |
+| **SouthTV** | ✅ Opérationnelle |
+| **WaveAnime** | ✅ Opérationnelle |
 
 ---
 
@@ -82,7 +82,7 @@ Ce dépôt regroupe et maintient les meilleures sources françaises :
 - **ADKami** : Très complet, inclut également du contenu adulte.
 - **FrenchAnime** : Très stable pour les classiques et nouveautés.
 - **French-Manga** : Catalogue varié et mise à jour rapide.
-- **FrAnime** : Interface moderne, en cours de développement.
+- **FrAnime** : Trop complexe à intégrer pour l'instant (lecteurs protégés). Cette source permet principalement de rechercher des animés de façon centralisée et de les visionner via la Webview intégrée.
 - **Stream-VF** : Spécialisé VF avec de bons lecteurs.
 - **VoirAnime** : Source riche en VF/VOSTFR.
 - **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
