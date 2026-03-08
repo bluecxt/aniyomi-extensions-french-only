@@ -11,7 +11,7 @@ on:
 
 jobs:
   audit:
-    name: Run Simulators
+    name: Run Simulators Audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,37 +24,5 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4
 
-      - name: Execute Simulators
-        run: |
-          SUMMARY=""
-          EXIT_CODE=0
-          
-          echo "🚀 Démarrage de l'audit des extensions..."
-          
-          for EXT_NAME in $(ls src/fr); do
-            SIM_PATH="src/fr/$EXT_NAME/simulator.py"
-            echo "--------------------------------------------------"
-            echo "🔎 Test de $EXT_NAME..."
-            
-            CMD="python3 anikku_simulator.py $EXT_NAME"
-            if [ -f "$SIM_PATH" ]; then
-              CMD="python3 $SIM_PATH"
-            fi
-            
-            if $CMD; then
-              SUMMARY="${SUMMARY}| $EXT_NAME | ✅ PASS |\n"
-            else
-              SUMMARY="${SUMMARY}| $EXT_NAME | ❌ FAIL |\n"
-              EXIT_CODE=1
-            fi
-          done
-          
-          echo -e "\n\n=================================================="
-          echo -e "📊 RÉSUMÉ FINAL DE L'AUDIT"
-          echo -e "=================================================="
-          echo -e "| Extension | Statut |"
-          echo -e "| :--- | :--- |"
-          echo -e "$SUMMARY"
-          echo -e "=================================================="
-          
-          exit $EXIT_CODE
+      - name: Run Orchestrator
+        run: python3 check_all_simulators.py

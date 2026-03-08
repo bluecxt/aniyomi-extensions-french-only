@@ -1,93 +1,99 @@
-# Journal des modifications (par Gemini)
+# Documentation du Projet : aniyomi-extensions-french-only
 
-Ce fichier trace l'historique de toutes les modifications effectuées sur ce fork pour l'adapter aux besoins spécifiques (uniquement les extensions françaises).
+Ce document fournit une vue d'ensemble détaillée du fonctionnement, de la structure et du flux de travail de ce dépôt.
 
-## Modifications effectuées
+## 🎯 Objectif du Projet
+L'objectif principal de ce fork est de fournir et maintenir un dépôt d'extensions **uniquement en français** pour les applications **Anikku** (priorité) et **Aniyomi**. Le nettoyage des sources non francophones permet de réduire le temps de build et de se concentrer sur la stabilité des sources VF/VOSTFR.
 
-### 1. Nettoyage des sources (src/)
-- **Action :** Suppression de tous les dossiers de langues non-francophones (`src/all`, `src/en`, `src/es`, etc.).
-- **Objectif :** Réduire la taille du projet, accélérer les temps de build et se concentrer uniquement sur les extensions VF/VOSTFR.
+---
 
-### 2. Gestion de `lib-multisrc/`
-- **Action :** Restauration du dossier `lib-multisrc/` (précédemment supprimé par erreur).
-- **Objectif :** Garantir le fonctionnement de 6 extensions françaises (FrenchAnime, Wiflix, Jetanime, etc.) qui dépendent des thèmes partagés (ex: `datalifeengine`, `dooplay`).
+## 🏗️ Architecture du Codebase
 
-### 3. Mise à jour du `README.md`
-- **Action :** Réécriture complète en français et mise à jour de l'URL du dépôt d'extensions.
-- **Objectif :** Fournir des instructions claires aux utilisateurs et proposer l'URL du dossier (`/repo/`) plus compatible avec Anikku/Aniyomi que le lien direct vers le JSON.
+Le projet est structuré comme une application Android multi-modules utilisant Gradle.
 
-### 4. Correction de la compilation locale
-- **Action :** Création d'un fichier `local.properties` (SDK Android local).
-- **Objectif :** Permettre l'exécution de `./gradlew assembleDebug` en local sans erreur de chemin SDK.
+### 1. `/core`
+Contient les classes de base et les interfaces nécessaires au fonctionnement de toute extension Aniyomi (scrapers, modèles de données, intercepteurs réseau).
 
-### 5. Refonte du Workflow CI/CD (`build_push.yml`)
-- **Action 5.1 (Autonomie) :** Suppression des références à `cuong-tran` pour utiliser `${{ github.repository }}`.
-- **Objectif :** Permettre aux GitHub Actions de publier les extensions sur ton propre fork.
-- **Action 5.2 (Sécurité) :** Passage par une variable d'environnement pour `SIGNING_KEY`.
-- **Objectif :** Éviter l'erreur `command not found` causée par les retours à la ligne dans le secret Base64.
-- **Action 5.3 (Standardisation) :** Passage de toutes les actions GitHub en version stable `v4`.
-- **Objectif :** Résoudre les erreurs de téléchargement d'artefacts (404/400) rencontrées avec les versions par SHA.
-- **Action 5.5 (Déploiement Automatisé) :** Migration vers `github-pages-deploy-action` pour la branche `repo`.
-- **Objectif :** Garantir que la branche `repo` est toujours propre et contient un `index.min.json` valide, résolvant ainsi l'erreur "invalid repo url" dans Anikku.
+### 2. `/lib` (Extracteurs)
+Regroupe les scripts d'extraction vidéo pour divers hébergeurs (ex: `doodextractor`, `sibnetextractor`, `voeextractor`). Ces bibliothèques sont partagées entre plusieurs extensions pour éviter la duplication de code.
 
-### 6. Gestion des branches
-- **Action :** Création et initialisation de la branche `repo` (orpheline).
-- **Objectif :** Préparer l'espace d'hébergement pour les APKs et l'index des extensions séparément du code source.
+### 3. `/lib-multisrc` (Thèmes partagés)
+Contient des thèmes génériques pour les sites utilisant le même moteur (CMS).
+- **datalifeengine** : Utilisé par `FrenchAnime`.
+- **dooplay** : Thème courant pour les sites de streaming.
+- **animestream**, **pelisplus**, etc.
 
-### 7. Nettoyage sélectif des extensions françaises
-- **Action :** Suppression des extensions `hds` et `mykdrama`.
-- **Objectif :** Retirer les sources non souhaitées ou obsolètes du dépôt.
+### 4. `/src/fr` (Extensions Françaises)
+C'est ici que résident les extensions spécifiques au contenu français :
+- **animesama** : Le site de référence actuel (Anime-Sama).
+- **frenchanime** : Source historique utilisant le thème `datalifeengine`.
+- **jetanimes** : Source utilisant l'infrastructure Gupy / VideoPro.
+- **southtv** : Spécialisé dans l'animation occidentale (South Park, etc.).
+- **waveanime** : Source alternative moderne.
 
-### 8. Correction du build incrémental (CI/CD)
-- **Action 8.1 :** Modification de `build_push.yml` pour extraire la branche `repo` existante avant le build.
-- **Action 8.2 :** Mise à jour de `move-built-apks.py` pour fusionner les nouveaux APKs avec les anciens (au lieu de tout supprimer).
-- **Action 8.3 :** Ajout de `fr.animesama` et `fr.southtv` dans `always_build.json`.
-- **Objectif :** Éviter que les extensions ne disparaissent du dépôt lorsqu'une seule extension est mise à jour.
+---
 
-### 9. Installation de l'environnement de build local (ARM64)
-- **Action :** Installation d'OpenJDK 17 et des outils Android SDK (`cmdline-tools`, `platforms;android-34`, `build-tools;34.0.0`).
-- **Action :** Configuration de `local.properties` pour pointer vers `/root/android-sdk`.
-- **Note :** Le binaire `aapt2` fourni par Gradle ne fonctionne pas nativement sur ARM64, ce qui empêche la compilation complète sur ce serveur spécifique, mais permet de valider la syntaxe via Gradle.
+## ⚙️ Système de Build et CI/CD
 
-### 10. Fix de l'extension Franime (watch2/lpayer)
-- **Action 9.1 :** Analyse et rétro-ingénierie du décodeur JavaScript du site `franime.fr` pour le nouveau lecteur `lpayer`.
-- **Action 9.2 :** Ajout de la dépendance `cryptoaes` à l'extension `franime`.
-- **Action 9.3 :** Implémentation du décodeur AES-CBC dans `FrAnime.kt` pour extraire les liens `m3u8` à partir des paramètres chiffrés (`a`, `o`).
-- **Action 9.4 :** Correction du décodage du paramètre `a` (Base64 d'une chaîne Hex) et ajout d'un fallback utilisant `o` comme `videoId`.
-- **Action 9.5 :** Mise à jour de la version de l'extension vers la v25.
-- **Objectif :** Résoudre l'erreur "no available videos" causée par le changement de structure du site Franime.
+Le projet utilise un système sophistiqué pour automatiser la création du dépôt d'extensions.
 
-### 11. Fix et formatage de l'extension WaveAnime
-- **Action 11.1 :** Correction des erreurs de formatage Kotlin via `./gradlew spotlessApply`.
-- **Action 11.2 :** Ajout de l'import manquant `eu.kanade.tachiyomi.util.asJsoup` pour résoudre les erreurs de compilation.
-- **Objectif :** Permettre le build de la nouvelle extension WaveAnime qui échouait en CI.
+### Fichiers de configuration clés
+- **`settings.gradle.kts`** : Détecte dynamiquement tous les modules dans `lib`, `lib-multisrc` et `src/fr` pour les inclure dans le build.
+- **`common.gradle`** : Définit la configuration Android commune (SDK, versions, signature APK) pour toutes les extensions.
+- **`.github/always_build.json`** : Liste les extensions qui doivent être reconstruites à chaque exécution du workflow (actuellement `animesama`, `southtv`, `waveanime`).
 
-### 12. Nettoyage et correctifs divers (Wiflix, Vostfree, SouthTV)
-- **Action 12.1 :** Suppression définitive de l'extension `Wiflix` car le site n'existe plus.
-- **Action 12.2 :** Correction de l'extension `Vostfree` (v36) : mise à jour des sélecteurs CSS pour le chargement de la liste d'animés et de la recherche.
-- **Action 12.3 :** Correction de l'extension `SouthTV` (v4) : résolution du crash d'index et mise à jour du domaine vidéo vers `southtv.fr`.
-- **Objectif :** Maintenir la fonctionnalité globale du dépôt.
+### Workflow GitHub Actions (`build_push.yml`)
+1. **Prepare** : Analyse les changements et génère une matrice de build (via Python).
+2. **Build** : Compile les modules sélectionnés en APK signés.
+3. **Publish** :
+   - Télécharge les APKs produits.
+   - Utilise `move-built-apks.py` pour organiser les fichiers.
+   - Utilise `Inspector.jar` pour extraire les métadonnées des APKs.
+   - Utilise `create-repo.py` pour générer `index.min.json` (le catalogue du dépôt).
+   - Génère `repo.json` (format spécifique à Anikku) avec l'empreinte de signature SHA256.
+   - Pousse le tout sur la branche **orpheline `repo`**.
 
-### 13. Ajout de nouvelles extensions (Voiranime, Animoflix)
-- **Action 13.1 :** Création de l'extension `Voiranime` (voiranime.io) avec support des lecteurs Vidmoly, Sibnet, Sendvid, etc.
-- **Action 13.2 :** Création de l'extension `Animoflix` (animoflix.com) avec support des lecteurs Sibnet, Sendvid, Doodstream et Filemoon.
-- **Action 13.3 :** Ajout de ces extensions dans `always_build.json` pour un build automatique.
-- **Objectif :** Étendre le catalogue d'extensions francophones.
+---
 
-### 14. Nettoyage des extensions obsolètes (OtakuFR, VoirCartoon, EmpireStreaming)
-- **Action :** Suppression définitive des extensions `OtakuFR`, `VoirCartoon` et `EmpireStreaming`.
-- **Objectif :** Retirer les sources dont les sites n'existent plus ou ne correspondent pas au but du dépôt (uniquement des animes).
+## 🚀 Utilisation du Dépôt
 
-### 15. Correction de la synchronisation du Repo (Cleanup des APKs)
-- **Action :** Mise à jour de `move-built-apks.py` pour détecter et supprimer les APKs dont le code source a été retiré de `src/`.
-- **Objectif :** Éviter que des extensions supprimées (comme `otakufr` ou `voircartoon`) ne restent indéfiniment dans la liste des extensions disponibles sur Anikku/Aniyomi.
+L'URL du dépôt à ajouter dans Anikku ou Aniyomi est :
+`https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/index.min.json`
 
-### 16. Ajout de nouvelles extensions (StreamVF, FrenchManga)
-- **Action 16.1 :** Création de l'extension `StreamVF` (stream-vf.top) avec support des lecteurs Streamwish, Sibnet, Voe, etc.
-- **Action 16.2 :** Création de l'extension `FrenchManga` (french-manga.net) basée sur `datalifeengine`.
-- **Action 16.3 :** Ajout de ces extensions dans `always_build.json`.
-- **Objectif :** Remplacer les sources obsolètes par des sites actifs en 2026.
+---
 
-## 🚀 État actuel
-Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
-`https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`
+## 💻 Développement Local
+
+### Prérequis
+- **JDK 17** : Recommandé pour la compilation.
+- **Android SDK** : Nécessaire pour compiler les APKs.
+- **Python 3** : Requis pour exécuter les scripts de maintenance dans `.github/scripts/`.
+
+### Configuration
+1. Créer un fichier `local.properties` à la racine pour pointer vers votre SDK Android :
+   ```properties
+   sdk.dir=/votre/chemin/vers/android-sdk
+   ```
+2. **Note sur ARM64** : Le binaire `aapt2` fourni par Gradle peut ne pas fonctionner nativement sur certaines architectures ARM64 (serveurs, etc.). La compilation complète des APKs peut échouer dans cet environnement, bien que la validation de la syntaxe Gradle reste possible.
+
+---
+
+## 🛡️ Procédure de Validation (Obligatoire)
+
+Avant de proposer ou de valider tout changement (Commit/PR), il est **obligatoire** de lancer la suite de tests de simulation pour s'assurer qu'aucune source n'est brisée par les modifications (URL, sélecteurs, API) :
+
+```bash
+python3 check_all_simulators.py
+```
+
+En cas d'échec (❌ FAIL), vous devez :
+1. Identifier si le problème vient d'un changement sur le site web ou d'une erreur dans votre code.
+2. Mettre à jour le code Kotlin de l'extension concernée ET son `simulator.py` si nécessaire.
+3. Relancer l'audit jusqu'à obtenir un rapport ✅ PASS complet.
+
+---
+
+## 🛠️ Maintenance et Contributions
+- **Ajouter un site** : Créer un nouveau dossier dans `src/fr` et s'inspirer d'une extension existante.
+- **Réparer un lecteur** : Modifier l'extracteur correspondant dans `lib/`.
+- **Mise à jour du domaine** : Modifier le `baseUrl` dans le `build.gradle` de l'extension concernée.

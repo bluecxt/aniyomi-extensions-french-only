@@ -38,16 +38,14 @@ Ce dépôt inclut des outils pour tester les extensions sans avoir besoin d'un a
 ### 🧪 Simulateurs (Recommandé)
 Chaque extension dispose d'un script `simulator.py` qui imite le comportement d'Anikku pour vérifier si le site source est toujours fonctionnel.
 
-**Lancer tous les tests :**
+**Lancer tous les tests (Orchestrateur) :**
 ```bash
-for sim in src/fr/*/simulator.py; do python3 "$sim"; done
+python3 check_all_simulators.py
 ```
 
 **Tester une extension spécifique :**
 ```bash
 python3 src/fr/animesama/simulator.py
-# OU via le simulateur universel
-python3 anikku_simulator.py animesama
 ```
 
 ### 🔨 Compilation des APKs
