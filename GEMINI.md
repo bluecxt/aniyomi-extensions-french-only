@@ -103,3 +103,16 @@ Il est **strictement interdit** d'utiliser des emojis dans les messages de commi
 - **Ajouter un site** : Créer un nouveau dossier dans `src/fr` et s'inspirer d'une extension existante.
 - **Réparer un lecteur** : Modifier l'extracteur correspondant dans `lib/`.
 - **Mise à jour du domaine** : Modifier le `baseUrl` dans le `build.gradle` de l'extension concernée.
+- **Tag NSFW** : Ajouter `isNsfw = true` dans le `build.gradle` de l'extension.
+
+---
+
+### Historique des modifications (Gemini)
+
+#### 17. Mise à jour de l'extension ADKami (Tag NSFW)
+- **Action :** Ajout de `isNsfw = true` dans `build.gradle` et passage à la version v2.
+- **Objectif :** Marquer l'extension comme contenant du contenu adulte (Hentai) conformément à sa source par défaut.
+
+## 🚀 État actuel
+Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
+`https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`

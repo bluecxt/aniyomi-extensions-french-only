@@ -1,7 +1,8 @@
 ext {
     extName = 'ADKami'
     extClass = '.ADKami'
-    extVersionCode = 1
+    extVersionCode = 2
+    isNsfw = true
 }
 
 apply from: "$rootDir/common.gradle"
