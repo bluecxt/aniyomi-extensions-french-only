@@ -66,7 +66,7 @@ Le dépôt a été épuré pour ne conserver que les sources 100% opérationnell
 | **ADKami** | ✅ Opérationnelle |
 | **FrenchAnime** | ✅ Opérationnelle |
 | **French-Manga** | ✅ Opérationnelle |
-| **FrAnime** | 🚧 En cours |
+| **FrAnime** | ✅ Opérationnelle |
 | **Stream-VF** | ✅ Opérationnelle |
 | **VoirAnime** | ✅ Opérationnelle |
 | **SouthTV** | ✅ Opérationnelle |
@@ -82,7 +82,7 @@ Ce dépôt regroupe et maintient les meilleures sources françaises :
 - **ADKami** : Très complet, inclut également du contenu adulte.
 - **FrenchAnime** : Très stable pour les classiques et nouveautés.
 - **French-Manga** : Catalogue varié et mise à jour rapide.
-- **FrAnime** : Trop complexe à intégrer pour l'instant (lecteurs protégés). Cette source permet principalement de rechercher des animés de façon centralisée et de les visionner via la Webview intégrée.
+- **FrAnime** : Grand catalogue avec support du nouveau lecteur chiffré (watch2).
 - **Stream-VF** : Spécialisé VF avec de bons lecteurs.
 - **VoirAnime** : Source riche en VF/VOSTFR.
 - **SouthTV** : Le spécialiste pour South Park et l'animation adulte.
