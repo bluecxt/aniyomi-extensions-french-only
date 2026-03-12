@@ -113,6 +113,10 @@ Il est **strictement interdit** d'utiliser des emojis dans les messages de commi
 - **Action :** Ajout de `isNsfw = true` dans `build.gradle` et passage à la version v2.
 - **Objectif :** Marquer l'extension comme contenant du contenu adulte (Hentai) conformément à sa source par défaut.
 
+#### 18. Correctif du lecteur FrAnime (Déchiffrement XOR)
+- **Action :** Implémentation d'un algorithme de déchiffrement XOR automatique dans `FrAnime.kt` et passage à la version v3.
+- **Objectif :** Restaurer le fonctionnement des vidéos suite à la mise en place du nouveau lecteur "watch2" chiffré sur le site officiel. L'extension teste désormais dynamiquement les clés de déchiffrement pour extraire les URLs des lecteurs tiers (Sibnet, Sendvid, etc.).
+
 ## 🚀 État actuel
 Le dépôt est maintenant prêt à fonctionner de manière autonome sous le nom **"bluecxt french repo"**. Une fois les secrets de signature configurés sur GitHub (SIGNING_KEY, ALIAS, passwords), le build générera automatiquement l'index compatible avec Anikku à l'adresse suivante :
 `https://cdn.jsdelivr.net/gh/bluecxt/aniyomi-extensions-french-only@repo/index.min.json`

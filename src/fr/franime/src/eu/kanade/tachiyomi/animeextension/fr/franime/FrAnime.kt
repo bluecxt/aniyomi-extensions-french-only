@@ -1,5 +1,6 @@
 package eu.kanade.tachiyomi.animeextension.fr.franime
 
+import android.util.Base64
 import eu.kanade.tachiyomi.animeextension.fr.franime.dto.Anime
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
@@ -129,7 +130,16 @@ class FrAnime : AnimeHttpSource() {
 
         val videos = players.withIndex().toList().parallelCatchingFlatMap { (index, playerName) ->
             val apiUrl = "$videoBaseUrl/$episodeLang/$index"
-            val playerUrl = client.newCall(GET(apiUrl, headers)).execute().body.string()
+            val responseBody = client.newCall(GET(apiUrl, headers)).execute().body.string()
+            val playerUrl = if (responseBody.contains("watch2")) {
+                val uri = responseBody.toHttpUrl()
+                decryptFrAnime(uri.queryParameter("a") ?: "") ?:
+                    decryptFrAnime(uri.queryParameter("b") ?: "") ?:
+                    decryptFrAnime(uri.queryParameter("c") ?: "") ?: ""
+            } else {
+                responseBody
+            }
+
             when (playerName) {
                 "sendvid" -> sendvidExtractor.videosFromUrl(playerUrl)
                 "sibnet" -> sibnetExtractor.videosFromUrl(playerUrl)
@@ -184,6 +194,34 @@ class FrAnime : AnimeHttpSource() {
             "TERMINÉ" -> SAnime.COMPLETED
             else -> SAnime.UNKNOWN
         }
+    }
+
+    private fun decryptFrAnime(encrypted: String): String? {
+        if (encrypted.isEmpty()) return null
+        val hexData = try {
+            String(Base64.decode(encrypted, Base64.DEFAULT))
+        } catch (e: Exception) {
+            return null
+        }
+        if (hexData.isEmpty()) return null
+
+        for (key in 0..255) {
+            val sb = StringBuilder()
+            try {
+                var i = 0
+                while (i < hexData.length) {
+                    val hex = hexData.substring(i, i + 2)
+                    val charCode = hex.toInt(16)
+                    sb.append((charCode xor key).toChar())
+                    i += 2
+                }
+                val result = sb.toString()
+                if (result.startsWith("http")) return result
+            } catch (e: Exception) {
+                continue
+            }
+        }
+        return null
     }
 
     companion object {
