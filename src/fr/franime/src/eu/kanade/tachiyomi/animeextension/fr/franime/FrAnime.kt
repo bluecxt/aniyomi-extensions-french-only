@@ -133,9 +133,9 @@ class FrAnime : AnimeHttpSource() {
             val responseBody = client.newCall(GET(apiUrl, headers)).execute().body.string()
             val playerUrl = if (responseBody.contains("watch2")) {
                 val uri = responseBody.toHttpUrl()
-                decryptFrAnime(uri.queryParameter("a") ?: "") ?:
-                    decryptFrAnime(uri.queryParameter("b") ?: "") ?:
-                    decryptFrAnime(uri.queryParameter("c") ?: "") ?: ""
+                decryptFrAnime(uri.queryParameter("a") ?: "")
+                    ?: decryptFrAnime(uri.queryParameter("b") ?: "")
+                    ?: decryptFrAnime(uri.queryParameter("c") ?: "") ?: ""
             } else {
                 responseBody
             }
