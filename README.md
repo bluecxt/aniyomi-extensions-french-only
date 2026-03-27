@@ -19,10 +19,10 @@ https://raw.githubusercontent.com/bluecxt/aniyomi-extensions-french-only/repo/in
 
 Ce repository inclut des outils pour valider les scrapers de métadonnées.
 
-### 🧪 Validation des Scrapers (Recommandé)
+### 🧪 Validation des Scrapers
 Chaque module dispose d'un validateur qui vérifie si le flux de données distant est toujours conforme aux schémas attendus.
 
-**Lancer tous les tests (Orchestrateur) :**
+**Lancer tous les tests :**
 ```bash
 python3 audit_extensions.py
 ```
