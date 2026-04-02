@@ -45,16 +45,19 @@ def run_kotlin_test(ext_name):
     apk = find_apk(ext_name)
     if not apk:
         print(f"   ⚠️  Pas d'APK trouvé. Compilation en cours...")
-        aapt2_path = f"{android_home}/build-tools/36.0.0/aapt2"
+        # Use system native aapt2 (ARM64) installed via 'sudo apt install aapt2'
+        aapt2_path = "/usr/bin/aapt2"
         
         # Build environment for subprocess
         new_env = os.environ.copy()
         new_env["JAVA_HOME"] = JAVA_HOME
         if android_home:
             new_env["ANDROID_HOME"] = android_home
+            # Force AAPT2 path in environment for Daemon
+            new_env["GRADLE_OPTS"] = f"-Dandroid.aapt2.executable={aapt2_path}"
 
-        # Use init.gradle to force the AAPT2 path globally in the project
-        gradle_cmd = f"./gradlew :src:fr:{ext_name}:assembleDebug -q --init-script init.gradle -Pandroid.aapt2FromMaven=false"
+        # Use init.gradle and system properties to force the AAPT2 path globally
+        gradle_cmd = f"./gradlew :src:fr:{ext_name}:assembleDebug -q --init-script init.gradle -Pandroid.aapt2FromMaven=false -Dandroid.aapt2.executable={aapt2_path}"
         result = subprocess.run(gradle_cmd, shell=True, capture_output=True, text=True, env=new_env)
         
         if result.returncode != 0:

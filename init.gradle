@@ -2,7 +2,8 @@ allprojects {
     tasks.configureEach { task ->
         if (task.hasProperty("aapt2Executable")) {
             try {
-                task.aapt2Executable.set(file("/home/actions-runner/.android/sdk/build-tools/36.0.0/aapt2"))
+                // Utilise le aapt2 natif installé via 'sudo apt install aapt2'
+                task.aapt2Executable.set(file("/usr/bin/aapt2"))
             } catch (Exception e) {
                 // Ignore if not compatible
             }
