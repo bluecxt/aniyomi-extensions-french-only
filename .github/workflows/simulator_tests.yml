@@ -14,7 +14,7 @@ jobs:
     name: Run Simulators Audit
     runs-on: self-hosted
     env:
-      ANDROID_HOME: /home/actions-runner/android-sdk
+      ANDROID_HOME: /home/actions-runner/.android/sdk
     steps:
       - uses: actions/checkout@v6
 
