@@ -43,6 +43,10 @@ def run_kotlin_test(ext_name):
         result = subprocess.run(gradle_cmd, shell=True, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"   ❌ Échec de la compilation")
+            if result.stderr:
+                print(f"      Erreur: {result.stderr.strip()}")
+            elif result.stdout:
+                print(f"      Sortie: {result.stdout.strip()}")
             return False
         apk = find_apk(ext_name)
         if not apk:
