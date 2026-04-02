@@ -1,7 +1,7 @@
 ext {
     extName = 'Anime-Sama'
     extClass = '.AnimeSama'
-    extVersionCode = 26
+    extVersionCode = 27
 }
 
 apply from: "$rootDir/common.gradle"
@@ -10,4 +10,6 @@ dependencies {
     implementation(project(':lib:sibnetextractor'))
     implementation(project(':lib:vkextractor'))
     implementation(project(':lib:sendvidextractor'))
+    implementation(project(':lib:vidmolyextractor'))
+    implementation(project(':lib:playlistutils'))
 }

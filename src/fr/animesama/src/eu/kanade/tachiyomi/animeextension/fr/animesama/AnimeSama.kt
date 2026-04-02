@@ -32,13 +32,18 @@ class AnimeSama :
 
     override val name = "Anime-Sama"
 
-    // Domain info at: https://anime-sama.pw
     override val baseUrl: String
         get() = preferences.getString(PREF_URL_KEY, PREF_URL_DEFAULT)!!
 
     override val lang = "fr"
 
     override val supportsLatest = true
+
+    override val client = network.client
+
+    override fun headersBuilder() = super.headersBuilder()
+        .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+        .add("Referer", "$baseUrl/")
 
     private val json: Json by injectLazy()
 
@@ -117,6 +122,7 @@ class AnimeSama :
     private val sibnetExtractor by lazy { SibnetExtractor(client) }
     private val vkExtractor by lazy { VkExtractor(client, headers) }
     private val sendvidExtractor by lazy { SendvidExtractor(client, headers) }
+    private val vidmolyExtractor by lazy { VidMolyASExtractor(client, headers) }
 
     override suspend fun getVideoList(episode: SEpisode): List<Video> {
         val playerUrls = json.decodeFromString<List<List<String>>>(episode.url)
@@ -127,6 +133,7 @@ class AnimeSama :
                     playerUrl.contains("sibnet.ru") -> "Sibnet"
                     playerUrl.contains("vk.") -> "VK"
                     playerUrl.contains("sendvid.com") -> "Sendvid"
+                    playerUrl.contains("vidmoly.") -> "VidMoly"
                     else -> "Serveur"
                 }
                 val prefix = "($lang) $server - "
@@ -135,6 +142,7 @@ class AnimeSama :
                         contains("sibnet.ru") -> sibnetExtractor.videosFromUrl(playerUrl, prefix)
                         contains("vk.") -> vkExtractor.videosFromUrl(playerUrl, prefix)
                         contains("sendvid.com") -> sendvidExtractor.videosFromUrl(playerUrl, prefix)
+                        contains("vidmoly.") -> vidmolyExtractor.videosFromUrl(playerUrl, prefix)
                         else -> emptyList()
                     }
                 }
@@ -144,6 +152,7 @@ class AnimeSama :
             Video(video.url, cleanQuality(video.quality), video.videoUrl, video.headers)
         }.sort()
     }
+
     private fun cleanQuality(quality: String): String = quality.replace(Regex("(?i)\\s*-\\s*\\d+(?:\\.\\d+)?\\s*(?:MB|GB|KB)/s"), "")
         .replace(Regex("\\s*\\(\\d+x\\d+\\)"), "")
         .replace(Regex("(?i)Sendvid:default"), "")
@@ -235,7 +244,7 @@ class AnimeSama :
         }
         val urls = QuickJs.create().use { qjs ->
             qjs.evaluate(doc)
-            val res = qjs.evaluate("JSON.stringify(Array.from({length: 10}, (e,i) => this[`eps\${i}`]).filter(e => e))")
+            val res = qjs.evaluate("JSON.stringify(Array.from({length: 40}, (e,i) => this[`eps\${i + 1}`]).filter(e => e !== undefined && e !== null))")
             json.decodeFromString<List<List<String>>>(res as String)
         }
 
@@ -315,6 +324,7 @@ class AnimeSama :
             "Sendvid" to "sendvid",
             "Sibnet" to "sibnet",
             "VK" to "vk",
+            "VidMoly" to "vidmoly",
         )
         private val PLAYERS = playersMap.keys.toTypedArray()
         private val PLAYERS_VALUES = playersMap.values.toTypedArray()
