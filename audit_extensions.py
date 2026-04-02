@@ -56,10 +56,14 @@ def run_kotlin_test(ext_name):
         if android_home:
             env_prefix += f"ANDROID_HOME={android_home} "
             
-        gradle_cmd = f"{env_prefix} ./gradlew :src:fr:{ext_name}:assembleDebug -q -Pandroid.aapt2FromMaven=false"
-        if os.path.exists(aapt2_path):
-             gradle_cmd += f" -Dandroid.aapt2.executable={aapt2_path}"
-             
+        # Standard Gradle properties for ARM64 compatibility
+        params = [
+            "-q",
+            "-Pandroid.aapt2FromMaven=false",
+            f"-Pandroid.aapt2.executable={aapt2_path}"
+        ]
+        
+        gradle_cmd = f"{env_prefix} ./gradlew :src:fr:{ext_name}:assembleDebug {' '.join(params)}"
         result = subprocess.run(gradle_cmd, shell=True, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"   ❌ Échec de la compilation")
