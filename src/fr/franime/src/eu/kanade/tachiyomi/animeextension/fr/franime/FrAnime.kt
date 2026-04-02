@@ -152,6 +152,7 @@ class FrAnime :
         val stem = url.encodedPathSegments.last()
         val animeData = database.first { titleToUrl(it.originalTitle) == stem }
 
+        var globalEpisodeNumber = 1f
         val episodes = animeData.seasons.flatMapIndexed { sIndex, season ->
             season.episodes.mapIndexedNotNull { eIndex, episode ->
                 val hasPlayers = episode.languages.vo.players.isNotEmpty() || episode.languages.vf.players.isNotEmpty()
@@ -160,7 +161,7 @@ class FrAnime :
                 SEpisode.create().apply {
                     setUrlWithoutDomain(anime.url + "?s=${sIndex + 1}&ep=${eIndex + 1}")
                     name = (if (animeData.seasons.size > 1) "S${sIndex + 1} " else "") + (episode.title ?: "Épisode ${eIndex + 1}")
-                    episode_number = (sIndex * 1000 + eIndex + 1).toFloat()
+                    episode_number = globalEpisodeNumber++
                 }
             }
         }
