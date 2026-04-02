@@ -39,13 +39,21 @@ def run_kotlin_test(ext_name):
     # Create local.properties to help Gradle find the SDK
     android_home = os.environ.get("ANDROID_HOME")
     if android_home:
+        if not os.path.exists(android_home):
+            print(f"   ❌ ERREUR : Le dossier ANDROID_HOME n'existe pas : {android_home}")
         with open("local.properties", "w") as f:
             f.write(f"sdk.dir={android_home}\n")
+        # print(f"   📝 local.properties créé avec sdk.dir={android_home}")
 
     apk = find_apk(ext_name)
     if not apk:
         print(f"   ⚠️  Pas d'APK trouvé. Compilation en cours...")
-        gradle_cmd = f"JAVA_HOME={JAVA_HOME} ./gradlew :src:fr:{ext_name}:assembleDebug -q"
+        # Add ANDROID_HOME directly to the shell command
+        env_prefix = f"JAVA_HOME={JAVA_HOME} "
+        if android_home:
+            env_prefix += f"ANDROID_HOME={android_home} "
+            
+        gradle_cmd = f"{env_prefix} ./gradlew :src:fr:{ext_name}:assembleDebug -q"
         result = subprocess.run(gradle_cmd, shell=True, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"   ❌ Échec de la compilation")
