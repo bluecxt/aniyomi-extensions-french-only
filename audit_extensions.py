@@ -49,7 +49,8 @@ def run_kotlin_test(ext_name):
     if not apk:
         print(f"   ⚠️  Pas d'APK trouvé. Compilation en cours...")
         # Force AAPT2 to use the SDK version (essential for ARM64/Raspberry Pi)
-        aapt2_path = f"{android_home}/build-tools/34.0.0/aapt2"
+        # Using version 36.0.0 found on the runner
+        aapt2_path = f"{android_home}/build-tools/36.0.0/aapt2"
         
         env_prefix = f"JAVA_HOME={JAVA_HOME} "
         if android_home:
