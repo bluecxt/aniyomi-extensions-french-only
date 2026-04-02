@@ -12,7 +12,7 @@ on:
 jobs:
   audit:
     name: Run Simulators Audit
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       ANDROID_HOME: /home/actions-runner/.android/sdk
     steps:

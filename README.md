@@ -55,3 +55,14 @@ Le repository a été optimisé pour ne conserver que les scrapers les plus perf
 
 ---
 
+
+---
+
+## 🚀 Roadmap & Travaux en cours
+
+Voici les tâches restantes ou en cours de résolution pour les extensions francophones :
+
+- [ ] **ADKami** : Résoudre les problèmes de Timeout lors des audits.
+- [ ] **AnimeUltime** : Corriger l'erreur HTTP 403 (détection de robot par le serveur).
+- [ ] **AnimoFlix** : Stabiliser le bypass Cloudflare sur les serveurs CI.
+- [ ] **CI ARM64** : Adapter le script d'audit pour fonctionner proprement sur Raspberry Pi (problème récurrent de binaire AAPT2).

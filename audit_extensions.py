@@ -36,36 +36,15 @@ def find_apk(ext_name):
 
 def run_kotlin_test(ext_name):
     """Teste une extension avec anitester.jar (code Kotlin réel)."""
-    # Create local.properties to help Gradle find the SDK
-    android_home = os.environ.get("ANDROID_HOME")
-    if android_home:
-        with open("local.properties", "w") as f:
-            f.write(f"sdk.dir={android_home}\n")
-
     apk = find_apk(ext_name)
     if not apk:
         print(f"   ⚠️  Pas d'APK trouvé. Compilation en cours...")
-        # Use system native aapt2 (ARM64) installed via 'sudo apt install aapt2'
-        aapt2_path = "/usr/bin/aapt2"
-        
-        # Build environment for subprocess
-        new_env = os.environ.copy()
-        new_env["JAVA_HOME"] = JAVA_HOME
-        if android_home:
-            new_env["ANDROID_HOME"] = android_home
-            # Force AAPT2 path in environment for Daemon
-            new_env["GRADLE_OPTS"] = f"-Dandroid.aapt2.executable={aapt2_path}"
-
-        # Use init.gradle and system properties to force the AAPT2 path globally
-        gradle_cmd = f"./gradlew :src:fr:{ext_name}:assembleDebug -q --init-script init.gradle -Pandroid.aapt2FromMaven=false -Dandroid.aapt2.executable={aapt2_path}"
-        result = subprocess.run(gradle_cmd, shell=True, capture_output=True, text=True, env=new_env)
-        
+        gradle_cmd = f"./gradlew :src:fr:{ext_name}:assembleDebug -q"
+        result = subprocess.run(gradle_cmd, shell=True, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"   ❌ Échec de la compilation")
             if result.stderr:
                 print(f"      Erreur: {result.stderr.strip()}")
-            elif result.stdout:
-                print(f"      Sortie: {result.stdout.strip()}")
             return False
         apk = find_apk(ext_name)
         if not apk:
@@ -106,9 +85,6 @@ def run_kotlin_test(ext_name):
                     except ValueError:
                         pass
         print(f"   ❌ Test échoué")
-        for line in output.split("\n"):
-            if any(kw in line for kw in ["ERROR", "FAILED", "Exception", "Results"]):
-                print(f"      {line.strip()}")
         return False
     else:
         print(f"   ✅ Test réussi")
@@ -117,24 +93,19 @@ def run_kotlin_test(ext_name):
 def run_all():
     ensure_anitester()
 
-    if shutil.which(JAVA_BIN) is None:
-        print(f"❌ Java introuvable à l'emplacement: {JAVA_BIN}")
+    if JAVA_BIN is None:
+        print(f"❌ Java introuvable.")
         sys.exit(1)
 
-    print(f"🚀 [CHEF D'ORCHESTRE] Démarrage de l'audit complet (via anitester.jar)\n")
+    print(f"🚀 [CHEF D'ORCHESTRE] Démarrage de l'audit complet\n")
 
     extensions_path = "src/fr"
     results = []
 
-    ignored: list[str] = []
+    ignored = []
     if os.path.exists("ignored_extensions.json"):
-        try:
-            with open("ignored_extensions.json", "r") as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    ignored = [str(x) for x in data]
-        except Exception as e:
-            print(f"⚠️ Erreur chargement ignored_extensions.json: {e}")
+        with open("ignored_extensions.json", "r") as f:
+            ignored = json.load(f)
 
     for ext_name in sorted(os.listdir(extensions_path)):
         ext_dir = os.path.join(extensions_path, ext_name)
@@ -150,9 +121,9 @@ def run_all():
         if success:
             status = "✅ PASS"
         else:
-            if ext_name in ignored:
+            if ext_name.lower() in [x.lower() for x in ignored]:
                 status = "⚠️ FAIL (Ignoré)"
-                print(f"   ⏭️ Échec ignoré pour {ext_name.upper()}")
+                print(f"   ⏭️ Échec ignoré")
             else:
                 status = "❌ FAIL"
                 
@@ -161,8 +132,6 @@ def run_all():
     print("\n\n" + "="*50)
     print("📊 RÉSUMÉ FINAL DE L'AUDIT")
     print("="*50)
-    print(f"{'Extension':<15} | {'Statut':<20}")
-    print("-" * 35)
     for name, status in results:
         print(f"{name:<15} | {status:<20}")
     print("="*50)
