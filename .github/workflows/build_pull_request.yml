@@ -78,7 +78,7 @@ jobs:
       - id: generate-matrices
         name: Generate build matrices
         run: |
-          python ./.github/scripts/generate-build-matrices.py origin/master ${{ secrets.SIGNING_KEY != '' && 'Release' || 'Debug' }}
+          python ./.github/scripts/generate-build-matrices.py origin/main ${{ secrets.SIGNING_KEY != '' && 'Release' || 'Debug' }}
 
   build:
     name: Build extensions (${{ matrix.chunk.number }})
