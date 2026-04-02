@@ -15,7 +15,7 @@ jobs:
   update-kohi-den:
     if: github.repository == 'yuzono/aniyomi-extensions'
     name: Update Kohi-den
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set env
