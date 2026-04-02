@@ -202,16 +202,20 @@ class AnimoFlix :
     override fun episodeListParse(response: Response): List<SEpisode> {
         val document = response.asJsoup()
         val seasonCards = document.select(".seasons-grid a.season-card")
+        val currentSeasonName = document.selectFirst(".current-season .season-title")?.text() ?: ""
 
         return if (seasonCards.isNotEmpty()) {
             seasonCards.flatMap { card ->
                 val seasonName = card.selectFirst(".season-title")?.text() ?: ""
-                val seasonResponse = client.newCall(GET(card.attr("abs:href"), headers)).execute()
-                parseEpisodesFromSeasonPage(seasonResponse.asJsoup(), seasonName)
+                if (seasonName == currentSeasonName) {
+                    parseEpisodesFromSeasonPage(document, seasonName)
+                } else {
+                    val seasonResponse = client.newCall(GET(card.attr("abs:href"), headers)).execute()
+                    parseEpisodesFromSeasonPage(seasonResponse.asJsoup(), seasonName)
+                }
             }.reversed()
         } else {
-            val seasonName = document.selectFirst(".current-season .season-title")?.text() ?: ""
-            parseEpisodesFromSeasonPage(document, seasonName).reversed()
+            parseEpisodesFromSeasonPage(document, currentSeasonName).reversed()
         }
     }
 
@@ -266,7 +270,15 @@ class AnimoFlix :
             return emptyList()
         }
 
-        langsMap.forEach { (lang, url) ->
+        val prefVoice = preferences.getString(PREF_VOICES_KEY, PREF_VOICES_DEFAULT)!!
+        val targetLangs = if (langsMap.containsKey(prefVoice)) {
+            listOf(prefVoice)
+        } else {
+            langsMap.keys.toList()
+        }
+
+        targetLangs.forEach { lang ->
+            val url = langsMap[lang]!!
             try {
                 val response = client.newCall(GET(url, headers)).execute()
                 val doc = response.asJsoup()
