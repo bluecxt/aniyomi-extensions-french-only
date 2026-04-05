@@ -9,9 +9,9 @@ import eu.kanade.tachiyomi.animesource.ConfigurableAnimeSource
 import eu.kanade.tachiyomi.animesource.model.AnimeFilterList
 import eu.kanade.tachiyomi.animesource.model.AnimesPage
 import eu.kanade.tachiyomi.animesource.model.SAnime
+import eu.kanade.tachiyomi.animesource.model.SEpisode
 import eu.kanade.tachiyomi.animesource.model.Track
 import eu.kanade.tachiyomi.animesource.model.Video
-import eu.kanade.tachiyomi.animesource.model.VideoType
 import eu.kanade.tachiyomi.animesource.online.AnimeHttpSource
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.util.asJsoup
@@ -247,14 +247,14 @@ class WaveAnime :
             }.distinct().toList()
 
             if (qualities.isEmpty()) {
-                videoList.add(Video(videoUrl, cleanQuality("${prefix}DASH"), videoUrl, subtitleTracks = tracks, type = VideoType.DASH))
+                videoList.add(Video(videoUrl, cleanQuality("${prefix}DASH"), videoUrl, subtitleTracks = tracks))
             } else {
                 qualities.forEach { label ->
                     videoList.add(Video(videoUrl, cleanQuality("$prefix$label"), videoUrl, subtitleTracks = tracks))
                 }
             }
         } catch (e: Exception) {
-            videoList.add(Video(videoUrl, cleanQuality("${prefix}DASH"), videoUrl, subtitleTracks = tracks, type = VideoType.DASH))
+            videoList.add(Video(videoUrl, cleanQuality("${prefix}DASH"), videoUrl, subtitleTracks = tracks))
         }
 
         return videoList
